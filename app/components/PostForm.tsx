@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { transact } from '@/app/lib/instant';
 import { Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -37,28 +36,23 @@ export function PostForm() {
     try {
       console.log('Submitting post with userId:', userId, 'twitterHandle:', twitterHandle);
       
-      // Use Instant DB transaction
-      await transact([
-        {
-          $: 'users',
-          where: { twitterId: userId },
-          data: {
-            twitterId: userId,
-            username: twitterHandle,
-            twitterHandle: twitterHandle,
-            createdAt: Date.now(),
-          },
+      // Call API route to create post
+      const response = await fetch('/api/posts', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        {
-          $: 'gratitude_posts',
-          data: {
-            userId: userId,
-            content: content.trim(),
-            createdAt: Date.now(),
-            reactions: 0,
-          },
-        },
-      ]);
+        body: JSON.stringify({
+          userId,
+          twitterHandle,
+          content: content.trim(),
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to post');
+      }
       
       console.log('Post submitted successfully');
       setContent('');
