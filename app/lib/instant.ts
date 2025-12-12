@@ -1,4 +1,4 @@
-import { init } from '@instantdb/react';
+import { init, id } from '@instantdb/react';
 
 export type Schema = {
   users: {
@@ -23,19 +23,13 @@ const db = init<Schema>({
 
 export const { useQuery, useAuth } = db;
 
-// Check what methods are available on db
-if (typeof window !== 'undefined') {
-  console.log('Instant DB methods:', Object.keys(db));
-}
-
-// Helper function for transactions using Instant DB's direct API
-// Instant DB v0.9.6 uses db.transact() for mutations
-// Note: Instant DB transact() only supports insert operations, not upserts with where clauses
+// Helper function for transactions using Instant DB's builder pattern
+// Instant DB requires operations to be created using db.tx.table[id()].update()
 export async function transact(operations: any[]) {
   try {
-    // Instant DB v0.9.6 transact() only supports simple insert operations
-    // Format: [{ $: 'table', data: {...} }]
-    // For upserts, we need to handle them separately or just insert (duplicates handled by DB)
+    // Instant DB uses db.tx builder pattern for transactions
+    // Format: db.tx.table[id()].update({...})
+    // Note: Instant DB uses 'update' for both insert and update operations
     
     const instantOps: any[] = [];
     
@@ -45,27 +39,25 @@ export async function transact(operations: any[]) {
         continue;
       }
       
-      // Instant DB transact() doesn't support where clauses
-      // For users with where clause, we'll just insert (DB will handle duplicates if unique constraint exists)
-      // Or we can handle it separately
+      // Generate unique ID for each record
+      const recordId = id();
+      
       if (op.$ === 'users') {
-        // Just insert - if user exists, it will be a duplicate (handled by DB or we ignore)
-        instantOps.push({
-          $: 'users',
-          data: op.data,
-        });
+        // For users, we'll always create a new record
+        // If user exists, Instant DB will handle it based on unique constraints
+        instantOps.push(
+          (db as any).tx.users[recordId].update(op.data)
+        );
       } else if (op.$ === 'gratitude_posts') {
         // Insert new post
-        instantOps.push({
-          $: 'gratitude_posts',
-          data: op.data,
-        });
+        instantOps.push(
+          (db as any).tx.gratitude_posts[recordId].update(op.data)
+        );
       } else {
-        // Generic insert operation
-        instantOps.push({
-          $: op.$,
-          data: op.data,
-        });
+        // Generic operation
+        instantOps.push(
+          (db as any).tx[op.$][recordId].update(op.data)
+        );
       }
     }
     
@@ -74,18 +66,18 @@ export async function transact(operations: any[]) {
       throw new Error('No valid operations to execute');
     }
     
-    console.log('Executing transact with operations:', JSON.stringify(instantOps, null, 2));
+    console.log('Executing transact with', instantOps.length, 'operations');
     
-    // Call transact with the properly formatted operations (inserts only)
+    // Call transact with builder pattern operations
     const result = await (db as any).transact(instantOps);
-    console.log('Transact result:', result);
+    console.log('Transact completed successfully');
     return result;
   } catch (error) {
     console.error('Transaction error:', error);
-    console.error('Operations attempted:', JSON.stringify(operations, null, 2));
     throw error;
   }
 }
 
 export { db };
+export { id };
 
