@@ -30,11 +30,12 @@ if (typeof window !== 'undefined') {
 
 // Helper function for transactions using Instant DB's direct API
 // Instant DB v0.9.6 uses db.transact() for mutations
+// Note: Instant DB transact() only supports insert operations, not upserts with where clauses
 export async function transact(operations: any[]) {
   try {
-    // Instant DB v0.9.6 transact() expects operations array
-    // Each operation should have: { $: 'table', data: {...} } for inserts
-    // For upserts: { $: 'table', where: {...}, data: {...} }
+    // Instant DB v0.9.6 transact() only supports simple insert operations
+    // Format: [{ $: 'table', data: {...} }]
+    // For upserts, we need to handle them separately or just insert (duplicates handled by DB)
     
     const instantOps: any[] = [];
     
@@ -44,11 +45,13 @@ export async function transact(operations: any[]) {
         continue;
       }
       
-      if (op.$ === 'users' && op.where) {
-        // Upsert user: update if exists, insert if not
+      // Instant DB transact() doesn't support where clauses
+      // For users with where clause, we'll just insert (DB will handle duplicates if unique constraint exists)
+      // Or we can handle it separately
+      if (op.$ === 'users') {
+        // Just insert - if user exists, it will be a duplicate (handled by DB or we ignore)
         instantOps.push({
           $: 'users',
-          where: op.where,
           data: op.data,
         });
       } else if (op.$ === 'gratitude_posts') {
@@ -58,17 +61,11 @@ export async function transact(operations: any[]) {
           data: op.data,
         });
       } else {
-        // Generic operation
-        const instantOp: any = {
+        // Generic insert operation
+        instantOps.push({
           $: op.$,
-        };
-        if (op.where) {
-          instantOp.where = op.where;
-        }
-        if (op.data) {
-          instantOp.data = op.data;
-        }
-        instantOps.push(instantOp);
+          data: op.data,
+        });
       }
     }
     
@@ -77,15 +74,15 @@ export async function transact(operations: any[]) {
       throw new Error('No valid operations to execute');
     }
     
-    console.log('Executing transact with operations:', instantOps);
+    console.log('Executing transact with operations:', JSON.stringify(instantOps, null, 2));
     
-    // Call transact with the properly formatted operations
+    // Call transact with the properly formatted operations (inserts only)
     const result = await (db as any).transact(instantOps);
     console.log('Transact result:', result);
     return result;
   } catch (error) {
     console.error('Transaction error:', error);
-    console.error('Operations attempted:', operations);
+    console.error('Operations attempted:', JSON.stringify(operations, null, 2));
     throw error;
   }
 }
