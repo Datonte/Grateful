@@ -3,7 +3,7 @@
 import { formatRelativeTime } from '@/app/lib/utils';
 import { Heart, Share2 } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 type Post = {
   id: string;
@@ -18,13 +18,56 @@ type Post = {
 };
 
 export function GratitudePost({ post }: { post: Post }) {
+  // Sync reaction count from post prop (which comes from database)
   const [reactionCount, setReactionCount] = useState(post.reactions || 0);
   const [hasReacted, setHasReacted] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
-  const handleReaction = () => {
-    setReactionCount((prev) => (hasReacted ? prev - 1 : prev + 1));
+  // Update local state when post prop changes (from database sync)
+  useEffect(() => {
+    setReactionCount(post.reactions || 0);
+  }, [post.reactions]);
+
+  const handleReaction = async () => {
+    // Optimistic update
+    const newCount = hasReacted ? reactionCount - 1 : reactionCount + 1;
+    setReactionCount(newCount);
     setHasReacted(!hasReacted);
-    // TODO: Update in database
+    setIsUpdating(true);
+
+    try {
+      // Update in database
+      const increment = hasReacted ? -1 : 1;
+      const response = await fetch('/api/reactions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          postId: post.id,
+          increment,
+        }),
+      });
+
+      if (!response.ok) {
+        // Revert on error
+        setReactionCount(reactionCount);
+        setHasReacted(hasReacted);
+        const errorData = await response.json();
+        console.error('Failed to update reaction:', errorData.error);
+      } else {
+        const data = await response.json();
+        // Update with server response
+        setReactionCount(data.reactions);
+      }
+    } catch (error) {
+      // Revert on error
+      setReactionCount(reactionCount);
+      setHasReacted(hasReacted);
+      console.error('Error updating reaction:', error);
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handleShare = () => {
@@ -61,9 +104,10 @@ export function GratitudePost({ post }: { post: Post }) {
       <div className="flex items-center gap-4 pt-3 border-t border-gray-200 dark:border-gray-700">
         <motion.button
           onClick={handleReaction}
-          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-grateful-primary dark:hover:text-grateful-accent transition-colors"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+          disabled={isUpdating}
+          className="flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-grateful-primary dark:hover:text-grateful-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          whileHover={{ scale: isUpdating ? 1 : 1.1 }}
+          whileTap={{ scale: isUpdating ? 1 : 0.9 }}
         >
           <Heart
             className={`w-5 h-5 ${hasReacted ? 'fill-current text-grateful-primary' : ''}`}
