@@ -40,20 +40,20 @@ export function GratitudePost({ post }: { post: Post }) {
       whileHover={{ scale: 1.02 }}
       className="p-6 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 mb-4"
     >
-      <div className="flex items-start gap-4 mb-3">
-        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-grateful-primary to-grateful-secondary flex items-center justify-center text-white font-bold text-lg flex-shrink-0">
-          @{post.user?.twitterHandle || post.user?.username || 'anon'}
+      <div className="flex items-start gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-grateful-primary to-grateful-secondary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+          {(post.user?.twitterHandle || post.user?.username || 'A').charAt(0).toUpperCase()}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-semibold text-gray-900 dark:text-gray-100">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="font-semibold text-gray-900 dark:text-gray-100 text-base">
               @{post.user?.twitterHandle || post.user?.username || 'anonymous'}
             </span>
-            <span className="text-sm text-gray-500 dark:text-gray-400">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
               · {formatRelativeTime(post.createdAt)}
             </span>
           </div>
-          <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words">
+          <p className="text-gray-800 dark:text-gray-200 whitespace-pre-wrap break-words leading-relaxed">
             {post.content}
           </p>
         </div>
