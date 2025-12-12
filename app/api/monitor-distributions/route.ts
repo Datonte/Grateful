@@ -204,6 +204,9 @@ export async function GET(request: NextRequest) {
     // Find the most recent signature to track
     const mostRecentSig = signatures.length > 0 ? signatures[0].signature : lastCheckedSig;
 
+    // Get first few signature strings for debugging
+    const signatureList = signatures.slice(0, 5).map(s => s.signature);
+
     return NextResponse.json({
       success: true,
       newDistributions,
@@ -213,6 +216,8 @@ export async function GET(request: NextRequest) {
       registeredWallets: walletMap.size,
       mostRecentSignature: mostRecentSig,
       lastCheckedBefore: lastCheckedSig,
+      firstFewSignatures: signatureList, // For debugging
+      registeredWalletAddresses: Array.from(walletMap.keys()), // Show what wallets we're looking for
     });
   } catch (error: any) {
     console.error('Error monitoring distributions:', error);

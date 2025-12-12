@@ -40,11 +40,23 @@ export async function GET(request: NextRequest) {
 
     // Get recent transactions
     const treasuryPubkey = new PublicKey(treasuryWallet);
-    const signatures = await connection.getSignaturesForAddress(treasuryPubkey, {
-      limit: 10,
-    });
+    let signatures = [];
+    try {
+      signatures = await connection.getSignaturesForAddress(treasuryPubkey, {
+        limit: 10,
+      });
+    } catch (error) {
+      return NextResponse.json({
+        error: 'Failed to fetch transactions from Solana',
+        errorMessage: (error as Error).message,
+        treasuryWallet,
+        registeredWallets,
+        totalRegistered: registeredWallets.length,
+      });
+    }
 
     const recentTransactions = [];
+    const errors = [];
 
     for (const sigInfo of signatures.slice(0, 5)) {
       try {
@@ -96,7 +108,12 @@ export async function GET(request: NextRequest) {
           });
         }
       } catch (error) {
+        const errorMsg = (error as Error).message;
         console.error(`Error processing ${sigInfo.signature}:`, error);
+        errors.push({
+          signature: sigInfo.signature,
+          error: errorMsg,
+        });
       }
     }
 
@@ -105,6 +122,8 @@ export async function GET(request: NextRequest) {
       registeredWallets,
       recentTransactions,
       totalRegistered: registeredWallets.length,
+      signaturesFound: signatures.length,
+      errors: errors.length > 0 ? errors : undefined,
     });
   } catch (error: any) {
     console.error('Debug error:', error);
