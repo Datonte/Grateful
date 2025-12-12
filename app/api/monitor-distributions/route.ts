@@ -52,10 +52,12 @@ export async function GET(request: NextRequest) {
     console.log(`Monitoring: Found ${walletMap.size} users with wallet addresses`);
 
     // Get recent transactions from treasury wallet
+    // Always check the most recent transactions first, then check older ones if needed
     const treasuryPubkey = new PublicKey(treasuryWallet);
     const signatures = await connection.getSignaturesForAddress(treasuryPubkey, {
       limit: 100,
-      before: lastCheckedSig || undefined,
+      // Don't use 'before' if we want to check the most recent transactions
+      // Only use 'before' if we're doing a backfill
     });
 
     let newDistributions = 0;
@@ -175,6 +177,9 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
+    // Find the most recent signature to track
+    const mostRecentSig = signatures.length > 0 ? signatures[0].signature : lastCheckedSig;
+
     return NextResponse.json({
       success: true,
       newDistributions,
@@ -182,6 +187,8 @@ export async function GET(request: NextRequest) {
       amountAdded: totalAmount,
       checkedTransactions: signatures.length,
       registeredWallets: walletMap.size,
+      mostRecentSignature: mostRecentSig,
+      lastCheckedBefore: lastCheckedSig,
     });
   } catch (error: any) {
     console.error('Error monitoring distributions:', error);
