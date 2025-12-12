@@ -200,44 +200,40 @@ export async function GET(request: NextRequest) {
           }
           
           if (targetUser) {
-                console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${user.twitterHandle})`);
-                
-                // Check if this distribution already exists
-                const existingDist = await db.query({
-                  distributions: {
-                    $: {
-                      where: { transactionHash: sigInfo.signature },
-                    },
-                  },
-                });
+            console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${targetUser.twitterHandle})`);
+            
+            // Check if this distribution already exists
+            const existingDist = await db.query({
+              distributions: {
+                $: {
+                  where: { transactionHash: sigInfo.signature },
+                },
+              },
+            });
 
-                if (existingDist?.distributions?.length === 0) {
-                  // This is a distribution to a registered user!
-                  const distId = id();
-                  await db.transact([
-                    db.tx.distributions[distId].update({
-                      userId: user.twitterId,
-                      walletAddress: recipientAddress,
-                      amount: amountSOL,
-                      transactionHash: sigInfo.signature,
-                      reason: 'Community reward',
-                      createdAt: sigInfo.blockTime
-                        ? sigInfo.blockTime * 1000
-                        : Date.now(),
-                    }),
-                  ]);
+            if (existingDist?.distributions?.length === 0) {
+              // This is a distribution to a registered user!
+              const distId = id();
+              await db.transact([
+                db.tx.distributions[distId].update({
+                  userId: targetUser.twitterId,
+                  walletAddress: recipientAddress,
+                  amount: amountSOL,
+                  transactionHash: sigInfo.signature,
+                  reason: 'Community reward',
+                  createdAt: sigInfo.blockTime
+                    ? sigInfo.blockTime * 1000
+                    : Date.now(),
+                }),
+              ]);
 
-                  console.log(`Recorded distribution: ${amountSOL} SOL to ${user.twitterHandle}`);
-                  newDistributions++;
-                  totalAmount += amountSOL;
-                  foundRecipient = true;
-                  break; // Found the recipient, no need to check other accounts
-                } else {
-                  console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
-                  foundRecipient = true;
-                  break;
-                }
-              }
+              console.log(`Recorded distribution: ${amountSOL} SOL to ${targetUser.twitterHandle}`);
+              newDistributions++;
+              totalAmount += amountSOL;
+              foundRecipient = true;
+            } else {
+              console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
+              foundRecipient = true;
             }
           }
           
