@@ -23,35 +23,30 @@ const db = init<Schema>({
 
 export const { useQuery, useAuth } = db;
 
-// Helper function for transactions
+// Helper function for transactions using Instant DB's tx API
 export async function transact(operations: any[]) {
-  if (typeof (db as any).transact === 'function') {
-    return (db as any).transact(operations);
-  } else if (typeof (db as any).tx === 'function') {
+  try {
+    // Instant DB uses tx() for transactions
     const tx = (db as any).tx();
-    operations.forEach((op: any) => {
+    
+    for (const op of operations) {
       if (op.$ === 'users' && op.where) {
-        tx.upsert('users', { where: op.where, data: op.data });
-      } else {
-        tx.insert(op.$, op.data);
+        // Upsert user: update if exists, insert if not
+        tx.upsert('users', {
+          where: op.where,
+          data: op.data,
+        });
+      } else if (op.$ === 'gratitude_posts') {
+        // Insert new post
+        tx.insert('gratitude_posts', op.data);
       }
-    });
-    return await tx.commit();
-  } else {
-    // Fallback: try direct insert/update methods
-    operations.forEach(async (op: any) => {
-      if (op.$ === 'users' && op.where) {
-        // Try to find existing user first
-        const existing = await (db as any).query('users', { where: op.where });
-        if (existing && existing.length > 0) {
-          await (db as any).update('users', { where: op.where, data: op.data });
-        } else {
-          await (db as any).insert('users', op.data);
-        }
-      } else {
-        await (db as any).insert(op.$, op.data);
-      }
-    });
+    }
+    
+    // Commit the transaction
+    await tx.commit();
+  } catch (error) {
+    console.error('Transaction error:', error);
+    throw error;
   }
 }
 
