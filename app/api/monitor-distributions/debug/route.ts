@@ -7,8 +7,10 @@ const db = init({
   adminToken: process.env.INSTANT_ADMIN_TOKEN!,
 });
 
+// Use Ankr's fast public RPC (free, no API key needed)
+// Fallback to public RPC if custom one is provided
 const connection = new Connection(
-  process.env.SOLANA_RPC_URL || 'https://api.mainnet-beta.solana.com',
+  process.env.SOLANA_RPC_URL || 'https://rpc.ankr.com/solana',
   'confirmed'
 );
 
