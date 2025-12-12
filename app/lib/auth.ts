@@ -9,6 +9,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
+    async signIn({ user, account, profile }) {
+      // Allow all sign-ins for now
+      return true;
+    },
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.sub!;
@@ -25,10 +29,12 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   },
   pages: {
     signIn: '/',
+    error: '/',
   },
   session: {
     strategy: 'jwt',
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
+  debug: process.env.NODE_ENV === 'development',
 });
 
