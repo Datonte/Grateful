@@ -22,7 +22,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async jwt({ token, account, profile }) {
       if (account && profile) {
-        token.twitterHandle = (profile as any).data?.username || (profile as any).screen_name;
+        // OAuth 2.0 returns username in profile.data.username
+        // OAuth 1.0a returns it in profile.screen_name
+        const username = (profile as any).data?.username || 
+                        (profile as any).username || 
+                        (profile as any).screen_name;
+        if (username) {
+          token.twitterHandle = username;
+        }
+        if (account.providerAccountId) {
+          token.sub = account.providerAccountId;
+        }
       }
       return token;
     },
