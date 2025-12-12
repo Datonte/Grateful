@@ -8,7 +8,7 @@ const db = init({
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, twitterHandle, content } = await request.json();
+    const { userId, twitterHandle, content, walletAddress } = await request.json();
     
     if (!userId || !content) {
       return NextResponse.json(
@@ -27,6 +27,7 @@ export async function POST(request: NextRequest) {
         twitterId: userId,
         username: twitterHandle,
         twitterHandle: twitterHandle,
+        walletAddress: walletAddress?.trim() || '',
         createdAt: Date.now(),
       }),
       db.tx.gratitude_posts[postId].update({

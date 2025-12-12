@@ -10,6 +10,7 @@ const MAX_CHARACTERS = 280;
 export function PostForm() {
   const { data: session } = useSession();
   const [content, setContent] = useState('');
+  const [walletAddress, setWalletAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -46,6 +47,7 @@ export function PostForm() {
           userId,
           twitterHandle,
           content: content.trim(),
+          walletAddress: walletAddress.trim(),
         }),
       });
       
@@ -56,6 +58,7 @@ export function PostForm() {
       
       console.log('Post submitted successfully');
       setContent('');
+      setWalletAddress('');
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
@@ -76,16 +79,17 @@ export function PostForm() {
       animate={{ opacity: 1, y: 0 }}
       className="mb-8"
     >
-      <div className="relative">
-        <textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="What are you grateful for today? 💜"
-          className="w-full p-4 pr-24 rounded-2xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md resize-none focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400"
-          rows={4}
-          maxLength={MAX_CHARACTERS}
-          disabled={isSubmitting}
-        />
+      <div className="space-y-3">
+        <div className="relative">
+          <textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="What are you grateful for today? 💜"
+            className="w-full p-4 pr-24 rounded-2xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md resize-none focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400"
+            rows={4}
+            maxLength={MAX_CHARACTERS}
+            disabled={isSubmitting}
+          />
         <div className="absolute bottom-4 right-4 flex items-center gap-3">
           <span
             className={`text-sm ${
@@ -108,6 +112,15 @@ export function PostForm() {
             )}
           </motion.button>
         </div>
+        </div>
+        <input
+          type="text"
+          value={walletAddress}
+          onChange={(e) => setWalletAddress(e.target.value)}
+          placeholder="Your Solana wallet address (optional, for rewards)"
+          className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm"
+          disabled={isSubmitting}
+        />
       </div>
       
       {error && (

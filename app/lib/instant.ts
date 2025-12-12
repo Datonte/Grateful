@@ -6,6 +6,7 @@ export type Schema = {
     twitterId: string;
     username: string;
     twitterHandle: string;
+    walletAddress: string;
     createdAt: number;
   };
   gratitude_posts: {
@@ -14,6 +15,21 @@ export type Schema = {
     content: string;
     createdAt: number;
     reactions: number;
+  };
+  distributions: {
+    id: string;
+    userId: string;
+    walletAddress: string;
+    amount: number;
+    transactionHash: string;
+    reason: string;
+    createdAt: number;
+  };
+  fee_tracking: {
+    id: string;
+    totalGivenOut: number;
+    lastDistributionTime: number;
+    lastCheckedTransaction: string;
   };
 };
 

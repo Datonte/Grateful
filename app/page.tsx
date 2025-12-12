@@ -7,6 +7,7 @@ import { GratitudeFeed } from './components/GratitudeFeed';
 import { ContractAddress } from './components/ContractAddress';
 import { SocialButtons } from './components/SocialButtons';
 import { ThemeToggle } from './components/ThemeToggle';
+import { FeeTracker } from './components/FeeTracker';
 import { Providers } from './providers';
 import { motion } from 'framer-motion';
 
@@ -53,6 +54,9 @@ export default function Home() {
 
           {/* Contract Address */}
           <ContractAddress />
+
+          {/* Fee Tracker */}
+          <FeeTracker />
 
           {/* Social Buttons */}
           <SocialButtons />

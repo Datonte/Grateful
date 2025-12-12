@@ -12,6 +12,7 @@ A beautiful, interactive website for the Grateful memecoin community where users
 - 🎨 **Beautiful Animations** - Interactive UI with Framer Motion
 - 🔗 **Social Integration** - Share posts to Twitter with $GRATEFUL ticker
 - 📋 **Contract Address** - Easy copy-to-clipboard functionality
+- 💰 **Automatic Fee Tracking** - Real-time tracking of community rewards distributed
 
 ## Tech Stack
 
@@ -21,6 +22,7 @@ A beautiful, interactive website for the Grateful memecoin community where users
 - **Framer Motion** - Smooth animations
 - **NextAuth.js** - Twitter OAuth authentication
 - **Instant DB** - Real-time database
+- **Solana Web3.js** - Blockchain transaction monitoring
 - **Lucide React** - Beautiful icons
 
 ## Getting Started
@@ -53,6 +55,9 @@ A beautiful, interactive website for the Grateful memecoin community where users
    TWITTER_CLIENT_ID=your-twitter-client-id
    TWITTER_CLIENT_SECRET=your-twitter-client-secret
    NEXT_PUBLIC_INSTANT_APP_ID=d16ae845-f359-4bad-8b78-45da1668a002
+   INSTANT_ADMIN_TOKEN=your-instant-admin-token
+   TREASURY_WALLET_ADDRESS=your-treasury-wallet-address
+   SOLANA_RPC_URL=https://api.mainnet-beta.solana.com
    ```
 
    **Generate NEXTAUTH_SECRET:**
@@ -72,9 +77,12 @@ A beautiful, interactive website for the Grateful memecoin community where users
    Go to [Instant.dev](https://instant.dev) and:
    1. Create an account
    2. Create a new app with your app ID: `d16ae845-f359-4bad-8b78-45da1668a002`
-   3. Set up the schema:
-      - `users` table with fields: `id`, `twitterId`, `username`, `twitterHandle`, `createdAt`
+   3. Get your admin token from the Instant DB dashboard
+   4. Set up the schema:
+      - `users` table with fields: `id`, `twitterId`, `username`, `twitterHandle`, `walletAddress`, `createdAt`
       - `gratitude_posts` table with fields: `id`, `userId`, `content`, `createdAt`, `reactions`
+      - `distributions` table with fields: `id`, `userId`, `walletAddress`, `amount`, `transactionHash`, `reason`, `createdAt`
+      - `fee_tracking` table with fields: `id`, `totalGivenOut`, `lastDistributionTime`, `lastCheckedTransaction`
 
 5. **Run the development server**
    ```bash
@@ -103,6 +111,9 @@ Make sure to set these in your Vercel dashboard:
 - `TWITTER_CLIENT_ID` - Your Twitter Client ID
 - `TWITTER_CLIENT_SECRET` - Your Twitter Client Secret
 - `NEXT_PUBLIC_INSTANT_APP_ID` - Your Instant DB App ID
+- `INSTANT_ADMIN_TOKEN` - Your Instant DB Admin Token
+- `TREASURY_WALLET_ADDRESS` - Your Solana wallet address for sending rewards
+- `SOLANA_RPC_URL` - Solana RPC endpoint (default: https://api.mainnet-beta.solana.com)
 
 ## Project Structure
 
@@ -164,6 +175,13 @@ grateful/
 - Share to Twitter with $GRATEFUL ticker
 - Contract address with copy button
 - Links to Twitter and Dexscreener
+
+### Fee Tracking
+- Users can optionally provide their Solana wallet address when posting
+- Automatic monitoring of treasury wallet transactions every 5 minutes
+- Real-time display of total SOL distributed as community rewards
+- Transactions are automatically matched to registered users
+- All distributions are tracked with transaction hashes for transparency
 
 ## Customization
 
