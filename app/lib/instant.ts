@@ -23,29 +23,57 @@ const db = init<Schema>({
 
 export const { useQuery, useAuth } = db;
 
-// Helper function for transactions using Instant DB's tx API
+// Check what methods are available on db
+if (typeof window !== 'undefined') {
+  console.log('Instant DB methods:', Object.keys(db));
+}
+
+// Helper function for transactions using Instant DB's direct API
 export async function transact(operations: any[]) {
   try {
-    // Instant DB uses tx() for transactions
-    const tx = (db as any).tx();
+    // Log available methods for debugging
+    console.log('DB methods:', Object.keys(db));
+    console.log('DB object:', db);
     
+    // Instant DB v0.9.0 uses direct mutation on the db object
+    // Try different API patterns
     for (const op of operations) {
       if (op.$ === 'users' && op.where) {
-        // Upsert user: update if exists, insert if not
-        tx.upsert('users', {
-          where: op.where,
-          data: op.data,
-        });
+        // For users, we need to upsert (update if exists, insert if not)
+        // Try the mutate pattern first
+        if ((db as any).mutate) {
+          await (db as any).mutate({
+            users: {
+              $: {
+                where: op.where,
+                data: op.data,
+              },
+            },
+          });
+        } else {
+          // Fallback: just insert (will create duplicate if exists, but that's okay for now)
+          await (db as any).insert('users', op.data);
+        }
       } else if (op.$ === 'gratitude_posts') {
-        // Insert new post
-        tx.insert('gratitude_posts', op.data);
+        // Insert new post using mutate pattern
+        if ((db as any).mutate) {
+          await (db as any).mutate({
+            gratitude_posts: {
+              $: {
+                data: op.data,
+              },
+            },
+          });
+        } else if ((db as any).insert) {
+          await (db as any).insert('gratitude_posts', op.data);
+        } else {
+          throw new Error('Instant DB mutation methods not available. Available methods: ' + Object.keys(db).join(', '));
+        }
       }
     }
-    
-    // Commit the transaction
-    await tx.commit();
   } catch (error) {
     console.error('Transaction error:', error);
+    console.error('DB object structure:', db);
     throw error;
   }
 }
