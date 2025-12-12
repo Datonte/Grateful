@@ -53,14 +53,44 @@ export async function GET(request: NextRequest) {
 
     console.log(`Monitoring: Found ${walletMap.size} users with wallet addresses`);
 
-    // Get recent transactions from treasury wallet
-    // Always check the most recent transactions first, then check older ones if needed
+    // Get recent transactions from treasury wallet AND check all registered wallets for incoming transactions
+    // This way we catch transactions sent from any source (Binance, etc.) to registered wallets
     const treasuryPubkey = new PublicKey(treasuryWallet);
-    const signatures = await connection.getSignaturesForAddress(treasuryPubkey, {
+    
+    // Get transactions from treasury wallet (outgoing)
+    const treasurySignatures = await connection.getSignaturesForAddress(treasuryPubkey, {
       limit: 100,
-      // Don't use 'before' if we want to check the most recent transactions
-      // Only use 'before' if we're doing a backfill
     });
+    
+    // Also get transactions TO all registered wallets (incoming from any source)
+    const allSignatures = new Map<string, any>();
+    treasurySignatures.forEach(sig => {
+      allSignatures.set(sig.signature, sig);
+    });
+    
+    // Get transactions for each registered wallet
+    for (const [walletAddr, user] of walletMap.entries()) {
+      try {
+        const walletPubkey = new PublicKey(walletAddr);
+        const walletSigs = await connection.getSignaturesForAddress(walletPubkey, {
+          limit: 50, // Check recent 50 for each wallet
+        });
+        walletSigs.forEach(sig => {
+          if (!allSignatures.has(sig.signature)) {
+            allSignatures.set(sig.signature, { ...sig, targetWallet: walletAddr });
+          }
+        });
+      } catch (error) {
+        console.error(`Error fetching transactions for wallet ${walletAddr}:`, error);
+      }
+    }
+    
+    // Convert to array and sort by blockTime (most recent first)
+    const signatures = Array.from(allSignatures.values()).sort((a, b) => {
+      const timeA = a.blockTime || 0;
+      const timeB = b.blockTime || 0;
+      return timeB - timeA;
+    }).slice(0, 100); // Limit to 100 most recent
 
     let newDistributions = 0;
     let totalAmount = 0;
@@ -89,37 +119,87 @@ export async function GET(request: NextRequest) {
           accountKeys = (tx.transaction.message as any).accountKeys || [];
         }
 
-        // Find treasury wallet in accounts
+        // Check if this transaction involves the treasury wallet OR any registered wallet
         const treasuryIndex = accountKeys.findIndex(
           (key) => key.toString() === treasuryWallet
         );
+        
+        // Find all registered wallets in this transaction
+        const registeredWalletIndices: number[] = [];
+        walletMap.forEach((user, walletAddr) => {
+          const index = accountKeys.findIndex(
+            (key) => key.toString().toLowerCase() === walletAddr
+          );
+          if (index !== -1) {
+            registeredWalletIndices.push(index);
+          }
+        });
 
-        if (treasuryIndex === -1) continue;
+        // Check if treasury sent (outgoing) OR registered wallet received (incoming)
+        let isRelevantTransaction = false;
+        let amountSOL = 0;
+        let recipientAddress = '';
+        let recipientIndex = -1;
+        
+        // Case 1: Treasury wallet sent (outgoing from treasury)
+        if (treasuryIndex !== -1) {
+          const treasuryBalanceChange = preBalances[treasuryIndex] - postBalances[treasuryIndex];
+          if (treasuryBalanceChange > 0) {
+            isRelevantTransaction = true;
+            const transactionFee = tx.meta.fee || 0;
+            amountSOL = (treasuryBalanceChange - transactionFee) / 1_000_000_000;
+          }
+        }
+        
+        // Case 2: Registered wallet received (incoming to registered wallet)
+        if (!isRelevantTransaction && registeredWalletIndices.length > 0) {
+          for (const walletIndex of registeredWalletIndices) {
+            const walletBalanceChange = postBalances[walletIndex] - preBalances[walletIndex];
+            if (walletBalanceChange > 0) {
+              isRelevantTransaction = true;
+              amountSOL = walletBalanceChange / 1_000_000_000;
+              recipientAddress = accountKeys[walletIndex].toString().trim().toLowerCase();
+              recipientIndex = walletIndex;
+              break; // Found a recipient, no need to check others
+            }
+          }
+        }
 
-        // Check if treasury balance decreased (outgoing)
-        const balanceChange =
-          preBalances[treasuryIndex] - postBalances[treasuryIndex];
-
-        if (balanceChange > 0) {
+        if (isRelevantTransaction) {
           // This is an outgoing transaction
           // Account for transaction fees - the actual sent amount might be less
           const transactionFee = tx.meta.fee || 0;
           const amountSOL = (balanceChange - transactionFee) / 1_000_000_000; // Convert lamports to SOL
 
-          // Find recipient by checking which account's balance INCREASED
-          // This is more reliable than just checking all account keys
+          // Find recipient - either from treasury outgoing or registered wallet incoming
           let foundRecipient = false;
-          for (let i = 0; i < accountKeys.length; i++) {
-            if (i === treasuryIndex) continue;
-            
-            const accountBalanceChange = postBalances[i] - preBalances[i];
-            
-            // If this account's balance increased, it's likely the recipient
-            if (accountBalanceChange > 0) {
-              const recipientAddress = accountKeys[i].toString().trim().toLowerCase();
-              const user = walletMap.get(recipientAddress);
-
-              if (user) {
+          let targetUser = null;
+          
+          if (recipientIndex !== -1 && recipientAddress) {
+            // We already found the recipient (incoming to registered wallet)
+            targetUser = walletMap.get(recipientAddress);
+          } else {
+            // Treasury sent - find which registered wallet received it
+            for (let i = 0; i < accountKeys.length; i++) {
+              if (i === treasuryIndex) continue;
+              
+              const accountBalanceChange = postBalances[i] - preBalances[i];
+              
+              // If this account's balance increased, it's likely the recipient
+              if (accountBalanceChange > 0) {
+                const checkAddress = accountKeys[i].toString().trim().toLowerCase();
+                const checkUser = walletMap.get(checkAddress);
+                
+                if (checkUser) {
+                  recipientAddress = checkAddress;
+                  targetUser = checkUser;
+                  break;
+                }
+              }
+            }
+          }
+          
+          if (targetUser) {
                 console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${user.twitterHandle})`);
                 
                 // Check if this distribution already exists
