@@ -104,53 +104,77 @@ export async function GET(request: NextRequest) {
           const transactionFee = tx.meta.fee || 0;
           const amountSOL = (balanceChange - transactionFee) / 1_000_000_000; // Convert lamports to SOL
 
-          // Find recipient - check all accounts except treasury
+          // Find recipient by checking which account's balance INCREASED
+          // This is more reliable than just checking all account keys
+          let foundRecipient = false;
           for (let i = 0; i < accountKeys.length; i++) {
             if (i === treasuryIndex) continue;
+            
+            const accountBalanceChange = postBalances[i] - preBalances[i];
+            
+            // If this account's balance increased, it's likely the recipient
+            if (accountBalanceChange > 0) {
+              const recipientAddress = accountKeys[i].toString().trim().toLowerCase();
+              const user = walletMap.get(recipientAddress);
 
-            const recipientAddress = accountKeys[i].toString().trim().toLowerCase();
-            const user = walletMap.get(recipientAddress);
-
-            if (user) {
-              console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${user.twitterHandle})`);
-              
-              // Check if this distribution already exists
-              const existingDist = await db.query({
-                distributions: {
-                  $: {
-                    where: { transactionHash: sigInfo.signature },
+              if (user) {
+                console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${user.twitterHandle})`);
+                
+                // Check if this distribution already exists
+                const existingDist = await db.query({
+                  distributions: {
+                    $: {
+                      where: { transactionHash: sigInfo.signature },
+                    },
                   },
-                },
-              });
+                });
 
-              if (existingDist?.distributions?.length === 0) {
-                // This is a distribution to a registered user!
-                const distId = id();
-                await db.transact([
-                  db.tx.distributions[distId].update({
-                    userId: user.twitterId,
-                    walletAddress: recipientAddress,
-                    amount: amountSOL,
-                    transactionHash: sigInfo.signature,
-                    reason: 'Community reward',
-                    createdAt: sigInfo.blockTime
-                      ? sigInfo.blockTime * 1000
-                      : Date.now(),
-                  }),
-                ]);
+                if (existingDist?.distributions?.length === 0) {
+                  // This is a distribution to a registered user!
+                  const distId = id();
+                  await db.transact([
+                    db.tx.distributions[distId].update({
+                      userId: user.twitterId,
+                      walletAddress: recipientAddress,
+                      amount: amountSOL,
+                      transactionHash: sigInfo.signature,
+                      reason: 'Community reward',
+                      createdAt: sigInfo.blockTime
+                        ? sigInfo.blockTime * 1000
+                        : Date.now(),
+                    }),
+                  ]);
 
-                console.log(`Recorded distribution: ${amountSOL} SOL to ${user.twitterHandle}`);
-                newDistributions++;
-                totalAmount += amountSOL;
-              } else {
-                console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
+                  console.log(`Recorded distribution: ${amountSOL} SOL to ${user.twitterHandle}`);
+                  newDistributions++;
+                  totalAmount += amountSOL;
+                  foundRecipient = true;
+                  break; // Found the recipient, no need to check other accounts
+                } else {
+                  console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
+                  foundRecipient = true;
+                  break;
+                }
               }
             }
           }
           
           // Debug: log if we found outgoing transaction but no user match
-          if (newDistributions === 0 && amountSOL > 0.001) {
-            console.log(`Outgoing transaction ${sigInfo.signature}: ${amountSOL} SOL, but no registered user found as recipient`);
+          if (!foundRecipient && amountSOL > 0.001) {
+            // Get all recipients with balance increases for debugging
+            const recipients = [];
+            for (let i = 0; i < accountKeys.length; i++) {
+              if (i === treasuryIndex) continue;
+              const accountBalanceChange = postBalances[i] - preBalances[i];
+              if (accountBalanceChange > 0) {
+                recipients.push({
+                  address: accountKeys[i].toString().trim().toLowerCase(),
+                  balanceIncrease: accountBalanceChange / 1_000_000_000,
+                });
+              }
+            }
+            console.log(`Outgoing transaction ${sigInfo.signature}: ${amountSOL} SOL, recipients:`, JSON.stringify(recipients));
+            console.log(`Registered wallets:`, Array.from(walletMap.keys()));
           }
 
           if (!latestSig) {
