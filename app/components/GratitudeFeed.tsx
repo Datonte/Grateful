@@ -9,8 +9,6 @@ export function GratitudeFeed() {
     gratitude_posts: {
       $: {
         where: {},
-        order: { createdAt: 'desc' },
-        limit: 50,
       },
     },
     users: {},
@@ -42,14 +40,17 @@ export function GratitudeFeed() {
     usersMap.set(user.twitterId, user);
   });
 
-  // Enrich posts with user data
-  const enrichedPosts = posts.map((post: any) => {
-    const user = usersMap.get(post.userId) || null;
-    return {
-      ...post,
-      user,
-    };
-  });
+  // Enrich posts with user data and sort by createdAt (newest first), limit to 50
+  const enrichedPosts = posts
+    .map((post: any) => {
+      const user = usersMap.get(post.userId) || null;
+      return {
+        ...post,
+        user,
+      };
+    })
+    .sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0))
+    .slice(0, 50);
 
   if (enrichedPosts.length === 0) {
     return (

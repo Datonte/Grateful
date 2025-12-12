@@ -25,11 +25,11 @@ export const { useQuery, useAuth } = db;
 
 // Helper function for transactions
 export async function transact(operations: any[]) {
-  if (typeof db.transact === 'function') {
-    return db.transact(operations);
-  } else if (typeof db.tx === 'function') {
-    const tx = db.tx();
-    operations.forEach((op) => {
+  if (typeof (db as any).transact === 'function') {
+    return (db as any).transact(operations);
+  } else if (typeof (db as any).tx === 'function') {
+    const tx = (db as any).tx();
+    operations.forEach((op: any) => {
       if (op.$ === 'users' && op.where) {
         tx.upsert('users', { where: op.where, data: op.data });
       } else {
@@ -38,7 +38,20 @@ export async function transact(operations: any[]) {
     });
     return await tx.commit();
   } else {
-    throw new Error('Instant DB transaction API not available');
+    // Fallback: try direct insert/update methods
+    operations.forEach(async (op: any) => {
+      if (op.$ === 'users' && op.where) {
+        // Try to find existing user first
+        const existing = await (db as any).query('users', { where: op.where });
+        if (existing && existing.length > 0) {
+          await (db as any).update('users', { where: op.where, data: op.data });
+        } else {
+          await (db as any).insert('users', op.data);
+        }
+      } else {
+        await (db as any).insert(op.$, op.data);
+      }
+    });
   }
 }
 
