@@ -14,11 +14,11 @@ if (!process.env.NEXTAUTH_SECRET) {
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET?.trim(),
   providers: [
     TwitterProvider({
-      clientId: process.env.TWITTER_CLIENT_ID,
-      clientSecret: process.env.TWITTER_CLIENT_SECRET,
+      clientId: process.env.TWITTER_CLIENT_ID?.trim() || '',
+      clientSecret: process.env.TWITTER_CLIENT_SECRET?.trim() || '',
     }),
   ],
   callbacks: {
