@@ -23,17 +23,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get last checked transaction
+    // Get last checked transaction - get the first (and should be only) fee_tracking record
     const tracking = await db.query({
-      fee_tracking: {
-        $: {
-          where: { id: 'fee-tracking-1' },
-        },
-      },
+      fee_tracking: {},
     });
 
-    const lastCheckedSig =
-      tracking?.fee_tracking?.[0]?.lastCheckedTransaction || null;
+    const trackingRecord = tracking?.fee_tracking?.[0];
+    const trackingId = trackingRecord?.id || id(); // Use existing ID or generate new one
+    const lastCheckedSig = trackingRecord?.lastCheckedTransaction || null;
 
     // Get all users with wallet addresses
     const users = await db.query({
@@ -165,14 +162,13 @@ export async function GET(request: NextRequest) {
     }
 
     // Update total and last checked
-    const currentTracking = tracking?.fee_tracking?.[0];
-    const currentTotal = currentTracking?.totalGivenOut || 0;
+    const currentTotal = trackingRecord?.totalGivenOut || 0;
     const newTotal = currentTotal + totalAmount;
 
     const lastSig = latestSig || signatures[0]?.signature || lastCheckedSig;
 
     await db.transact([
-      db.tx.fee_tracking['fee-tracking-1'].update({
+      db.tx.fee_tracking[trackingId].update({
         totalGivenOut: newTotal,
         lastDistributionTime: Date.now(),
         lastCheckedTransaction: lastSig || '',
