@@ -74,7 +74,16 @@ export async function GET(request: NextRequest) {
         // Check if this is an outgoing SOL transfer
         const preBalances = tx.meta.preBalances || [];
         const postBalances = tx.meta.postBalances || [];
-        const accountKeys = tx.transaction.message.accountKeys;
+        
+        // Get account keys - handle both legacy and versioned transactions
+        let accountKeys: PublicKey[] = [];
+        if ('getAccountKeys' in tx.transaction.message) {
+          // Versioned transaction
+          accountKeys = tx.transaction.message.getAccountKeys().staticAccountKeys;
+        } else {
+          // Legacy transaction
+          accountKeys = (tx.transaction.message as any).accountKeys || [];
+        }
 
         // Find treasury wallet in accounts
         const treasuryIndex = accountKeys.findIndex(
