@@ -1,11 +1,24 @@
 import NextAuth from 'next-auth';
 import TwitterProvider from 'next-auth/providers/twitter';
 
+if (!process.env.TWITTER_CLIENT_ID) {
+  throw new Error('TWITTER_CLIENT_ID is not set');
+}
+
+if (!process.env.TWITTER_CLIENT_SECRET) {
+  throw new Error('TWITTER_CLIENT_SECRET is not set');
+}
+
+if (!process.env.NEXTAUTH_SECRET) {
+  throw new Error('NEXTAUTH_SECRET is not set');
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     TwitterProvider({
-      clientId: process.env.TWITTER_CLIENT_ID!,
-      clientSecret: process.env.TWITTER_CLIENT_SECRET!,
+      clientId: process.env.TWITTER_CLIENT_ID,
+      clientSecret: process.env.TWITTER_CLIENT_SECRET,
     }),
   ],
   callbacks: {
