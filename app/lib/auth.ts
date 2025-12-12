@@ -28,25 +28,42 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.id = token.sub!;
-        session.user.twitterHandle = token.twitterHandle as string;
+        // Ensure we always have an ID
+        session.user.id = (token.sub as string) || (token.id as string) || '';
+        session.user.twitterHandle = (token.twitterHandle as string) || '';
       }
       return session;
     },
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
+      // Initial sign in - account and profile are only available on first call
       if (account && profile) {
         // OAuth 2.0 returns username in profile.data.username
         // OAuth 1.0a returns it in profile.screen_name
-        const username = (profile as any).data?.username || 
-                        (profile as any).username || 
-                        (profile as any).screen_name;
+        // Also check user object as fallback
+        const username = 
+          (profile as any).data?.username || 
+          (profile as any).username || 
+          (profile as any).screen_name ||
+          (user as any)?.name ||
+          '';
+
         if (username) {
           token.twitterHandle = username;
         }
+
+        // Set user ID - try multiple sources
         if (account.providerAccountId) {
-          token.sub = account.providerAccountId;
+          token.sub = String(account.providerAccountId);
+        } else if (account.id) {
+          token.sub = String(account.id);
+        } else if ((user as any)?.id) {
+          token.sub = String((user as any).id);
+        } else {
+          // Fallback: generate a stable ID from account
+          token.sub = account.provider || 'twitter';
         }
       }
+      
       return token;
     },
   },
@@ -59,5 +76,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   debug: process.env.NODE_ENV === 'development',
+  // Add trustHost for Vercel
+  trustHost: true,
 });
-
