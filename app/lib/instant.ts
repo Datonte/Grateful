@@ -29,51 +29,62 @@ if (typeof window !== 'undefined') {
 }
 
 // Helper function for transactions using Instant DB's direct API
+// Instant DB v0.9.6 uses db.transact() for mutations
 export async function transact(operations: any[]) {
   try {
-    // Log available methods for debugging
-    console.log('DB methods:', Object.keys(db));
-    console.log('DB object:', db);
+    // Check what methods are available (for debugging)
+    const dbMethods = Object.keys(db);
+    console.log('Available DB methods:', dbMethods);
     
-    // Instant DB v0.9.0 uses direct mutation on the db object
-    // Try different API patterns
-    for (const op of operations) {
-      if (op.$ === 'users' && op.where) {
-        // For users, we need to upsert (update if exists, insert if not)
-        // Try the mutate pattern first
-        if ((db as any).mutate) {
-          await (db as any).mutate({
-            users: {
-              $: {
-                where: op.where,
-                data: op.data,
-              },
-            },
-          });
+    // Instant DB v0.9.6 pattern: use db.transact() if available
+    if (typeof (db as any).transact === 'function') {
+      // Convert operations to Instant DB format
+      const instantOps = operations.map((op) => {
+        if (op.$ === 'users' && op.where) {
+          return {
+            $: 'users',
+            where: op.where,
+            data: op.data,
+          };
         } else {
-          // Fallback: just insert (will create duplicate if exists, but that's okay for now)
-          await (db as any).insert('users', op.data);
+          return {
+            $: op.$,
+            data: op.data,
+          };
         }
-      } else if (op.$ === 'gratitude_posts') {
-        // Insert new post using mutate pattern
-        if ((db as any).mutate) {
-          await (db as any).mutate({
-            gratitude_posts: {
-              $: {
-                data: op.data,
-              },
+      });
+      
+      return await (db as any).transact(instantOps);
+    } 
+    // Try alternative: direct mutation on db object
+    else if (typeof (db as any).mutate === 'function') {
+      // Build mutation object
+      const mutation: any = {};
+      for (const op of operations) {
+        if (op.$ === 'users' && op.where) {
+          mutation.users = {
+            $: {
+              where: op.where,
+              data: op.data,
             },
-          });
-        } else if ((db as any).insert) {
-          await (db as any).insert('gratitude_posts', op.data);
+          };
         } else {
-          throw new Error('Instant DB mutation methods not available. Available methods: ' + Object.keys(db).join(', '));
+          mutation[op.$] = {
+            $: {
+              data: op.data,
+            },
+          };
         }
       }
+      return await (db as any).mutate(mutation);
+    }
+    // Last resort: try direct insert (will log available methods)
+    else {
+      console.error('Neither transact() nor mutate() found. Available methods:', dbMethods);
+      throw new Error(`Instant DB mutation API not found. Available methods: ${dbMethods.join(', ')}`);
     }
   } catch (error) {
     console.error('Transaction error:', error);
-    console.error('DB object structure:', db);
     throw error;
   }
 }
