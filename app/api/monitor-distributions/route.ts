@@ -166,11 +166,7 @@ export async function GET(request: NextRequest) {
         }
 
         if (isRelevantTransaction) {
-          // This is an outgoing transaction
-          // Account for transaction fees - the actual sent amount might be less
-          const transactionFee = tx.meta.fee || 0;
-          const amountSOL = (balanceChange - transactionFee) / 1_000_000_000; // Convert lamports to SOL
-
+          // amountSOL is already calculated above (line 150 or 160)
           // Find recipient - either from treasury outgoing or registered wallet incoming
           let foundRecipient = false;
           let targetUser = null;
