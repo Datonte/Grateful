@@ -10,32 +10,29 @@ const db = init({
 export async function GET() {
   try {
     const data = await db.query({
-      fee_tracking: {
-        $: {
-          where: {},
-        },
-      },
-      distributions: {
-        $: {
-          where: {},
-        },
-      },
+      fee_tracking: {},
+      distributions: {},
     });
 
-    const feeData = data?.fee_tracking?.[0];
+    const feeData = data?.fee_tracking?.[0] || data?.fee_tracking?.[0];
     const distributions = data?.distributions || [];
 
+    const totalGivenOut = feeData?.totalGivenOut ?? 0;
+    const distributionsCount = distributions.length ?? 0;
+
     return NextResponse.json({
-      totalGivenOut: feeData?.totalGivenOut || 0,
-      distributionsCount: distributions.length,
+      totalGivenOut,
+      distributionsCount,
       lastDistributionTime: feeData?.lastDistributionTime || null,
     });
   } catch (error: any) {
     console.error('Error fetching fee tracking:', error);
-    return NextResponse.json(
-      { error: error.message || 'Failed to fetch fee tracking' },
-      { status: 500 }
-    );
+    // Return default values instead of error to ensure UI always shows something
+    return NextResponse.json({
+      totalGivenOut: 0,
+      distributionsCount: 0,
+      lastDistributionTime: null,
+    });
   }
 }
 

@@ -1,33 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useQuery } from '@/app/lib/instant';
 import { motion } from 'framer-motion';
 import { Gift, TrendingUp } from 'lucide-react';
 
 export function FeeTracker() {
-  const [data, setData] = useState<{ totalGivenOut: number; distributionsCount: number } | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/api/fee-tracking');
-        if (response.ok) {
-          const result = await response.json();
-          setData(result);
-        }
-      } catch (error) {
-        console.error('Error fetching fee tracking:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchData();
-    // Refresh every 30 seconds
-    const interval = setInterval(fetchData, 30000);
-    return () => clearInterval(interval);
-  }, []);
+  const { data, isLoading } = useQuery({
+    fee_tracking: {},
+    distributions: {},
+  });
 
   const formatSOL = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -45,8 +26,10 @@ export function FeeTracker() {
     );
   }
 
-  const totalGivenOut = data?.totalGivenOut || 0;
-  const distributionsCount = data?.distributionsCount || 0;
+  const feeData = data?.fee_tracking?.[0];
+  const distributions = data?.distributions || [];
+  const totalGivenOut = feeData?.totalGivenOut || 0;
+  const distributionsCount = distributions.length;
 
   return (
     <motion.div
