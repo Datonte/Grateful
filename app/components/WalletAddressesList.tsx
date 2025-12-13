@@ -9,9 +9,7 @@ export function WalletAddressesList() {
   const { data, isLoading } = useQuery({
     users: {
       $: {
-        where: {
-          walletAddress: { $ne: '' },
-        },
+        where: {},
       },
     },
   });
@@ -19,6 +17,7 @@ export function WalletAddressesList() {
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
   const users = data?.users || [];
+  // Filter users with non-empty wallet addresses
   const usersWithWallets = users.filter((user: any) => user.walletAddress && user.walletAddress.trim() !== '');
 
   const handleCopy = (address: string, index: number) => {
