@@ -38,9 +38,31 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // If user is trying to submit a wallet, check if they have at least one existing post
+    if (walletToSave && !existingWallet) {
+      // Check if user has any existing posts (before this one)
+      const userPosts = await db.query({
+        gratitude_posts: {
+          $: {
+            where: { userId: userId },
+          },
+        },
+      });
+      
+      const existingPostCount = userPosts?.gratitude_posts?.length || 0;
+      
+      // User must have at least one post before submitting wallet
+      if (existingPostCount === 0) {
+        return NextResponse.json(
+          { error: 'You must have at least one post before submitting your wallet address. Please submit your post first, then you can add your wallet address in your next post.' },
+          { status: 400 }
+        );
+      }
+    }
+    
     // If user exists and has wallet, don't update wallet
-    // If user exists but no wallet, allow wallet submission
-    // If user doesn't exist, create new user with wallet (if provided)
+    // If user exists but no wallet, allow wallet submission (if they have posts)
+    // If user doesn't exist, create new user with wallet (if provided and they have posts)
     const finalWalletAddress = existingWallet || walletToSave;
     
     // Generate IDs for new records

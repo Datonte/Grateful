@@ -31,6 +31,19 @@ export function PostForm() {
   const existingUser = userData?.users?.[0];
   const existingWallet = existingUser?.walletAddress || '';
 
+  // Check if user has any posts
+  const { data: postsData } = useQuery({
+    gratitude_posts: {
+      $: {
+        where: userId ? { userId: userId } : {},
+      },
+    },
+  });
+
+  const userPosts = postsData?.gratitude_posts || [];
+  const hasPosts = userPosts.length > 0;
+  const canSubmitWallet = hasPosts || existingWallet; // Can submit if they have posts OR already have a wallet
+
   // Set existing wallet if found
   useEffect(() => {
     if (existingWallet && !walletAddress) {
@@ -163,14 +176,23 @@ export function PostForm() {
               </p>
             </div>
           ) : (
-            <input
-              type="text"
-              value={walletAddress}
-              onChange={(e) => setWalletAddress(e.target.value)}
-              placeholder="Your Solana wallet address (optional, for rewards)"
-              className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm"
-              disabled={isSubmitting}
-            />
+            <div className="space-y-2">
+              <input
+                type="text"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                placeholder={hasPosts ? "Your Solana wallet address (optional, for rewards)" : "Submit a post first to add your wallet address"}
+                className={`w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm ${
+                  !hasPosts ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
+                disabled={isSubmitting || !hasPosts}
+              />
+              {!hasPosts && (
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  You need to submit at least one post before you can add your wallet address.
+                </p>
+              )}
+            </div>
           )}
         </div>
       </div>
