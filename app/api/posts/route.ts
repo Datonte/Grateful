@@ -8,7 +8,7 @@ const db = init({
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId, twitterHandle, content, walletAddress } = await request.json();
+    const { userId, twitterHandle, content } = await request.json();
     
     if (!userId || !content) {
       return NextResponse.json(
@@ -27,43 +27,8 @@ export async function POST(request: NextRequest) {
     });
     
     const existingUser = existingUsers?.users?.[0];
+    // Keep existing wallet address if user has one, otherwise empty string
     const existingWallet = existingUser?.walletAddress || '';
-    const walletToSave = walletAddress?.trim() || '';
-    
-    // Prevent duplicate wallet submissions
-    if (existingWallet && walletToSave) {
-      return NextResponse.json(
-        { error: 'You have already submitted a wallet address. Each Twitter account can only submit one wallet address.' },
-        { status: 400 }
-      );
-    }
-    
-    // If user is trying to submit a wallet, check if they have at least one existing post
-    if (walletToSave && !existingWallet) {
-      // Check if user has any existing posts (before this one)
-      const userPosts = await db.query({
-        gratitude_posts: {
-          $: {
-            where: { userId: userId },
-          },
-        },
-      });
-      
-      const existingPostCount = userPosts?.gratitude_posts?.length || 0;
-      
-      // User must have at least one post before submitting wallet
-      if (existingPostCount === 0) {
-        return NextResponse.json(
-          { error: 'You must have at least one post before submitting your wallet address. Please submit your post first, then you can add your wallet address in your next post.' },
-          { status: 400 }
-        );
-      }
-    }
-    
-    // If user exists and has wallet, don't update wallet
-    // If user exists but no wallet, allow wallet submission (if they have posts)
-    // If user doesn't exist, create new user with wallet (if provided and they have posts)
-    const finalWalletAddress = existingWallet || walletToSave;
     
     // Generate IDs for new records
     const postId = id();
@@ -75,7 +40,7 @@ export async function POST(request: NextRequest) {
         twitterId: userId,
         username: twitterHandle,
         twitterHandle: twitterHandle,
-        walletAddress: finalWalletAddress,
+        walletAddress: existingWallet, // Keep existing wallet, don't allow new submissions
         createdAt: existingUser?.createdAt || Date.now(),
       }),
       db.tx.gratitude_posts[postId].update({

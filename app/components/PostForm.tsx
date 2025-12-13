@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSession } from 'next-auth/react';
 import { useQuery } from '@/app/lib/instant';
 import { Send } from 'lucide-react';
@@ -12,44 +12,11 @@ const PLACEHOLDER_ADDRESS = 'Grateful...ComingSoon...SolanaTrenches';
 export function PostForm() {
   const { data: session } = useSession();
   const [content, setContent] = useState('');
-  const [walletAddress, setWalletAddress] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   const userId = session ? (session.user as any).id : null;
-
-  // Check if user already has a wallet address
-  const { data: userData } = useQuery({
-    users: {
-      $: {
-        where: userId ? { twitterId: userId } : {},
-      },
-    },
-  });
-
-  const existingUser = userData?.users?.[0];
-  const existingWallet = existingUser?.walletAddress || '';
-
-  // Check if user has any posts
-  const { data: postsData } = useQuery({
-    gratitude_posts: {
-      $: {
-        where: userId ? { userId: userId } : {},
-      },
-    },
-  });
-
-  const userPosts = postsData?.gratitude_posts || [];
-  const hasPosts = userPosts.length > 0;
-  const canSubmitWallet = hasPosts || existingWallet; // Can submit if they have posts OR already have a wallet
-
-  // Set existing wallet if found
-  useEffect(() => {
-    if (existingWallet && !walletAddress) {
-      // Don't set it, just keep it disabled
-    }
-  }, [existingWallet, walletAddress]);
 
   if (!session) return null;
 
@@ -72,9 +39,6 @@ export function PostForm() {
     try {
       console.log('Submitting post with userId:', userId, 'twitterHandle:', twitterHandle);
       
-      // Only send wallet address if user doesn't already have one
-      const walletToSubmit = existingWallet ? '' : walletAddress.trim();
-      
       // Call API route to create post
       const response = await fetch('/api/posts', {
         method: 'POST',
@@ -85,7 +49,6 @@ export function PostForm() {
           userId,
           twitterHandle,
           content: content.trim(),
-          walletAddress: walletToSubmit,
         }),
       });
       
@@ -96,9 +59,6 @@ export function PostForm() {
       
       console.log('Post submitted successfully');
       setContent('');
-      if (!existingWallet) {
-        setWalletAddress('');
-      }
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
@@ -160,40 +120,6 @@ export function PostForm() {
               {PLACEHOLDER_ADDRESS}
             </p>
           </div>
-          {existingWallet ? (
-            <div className="space-y-2">
-              <p className="text-xs sm:text-sm text-slate-700 font-medium drop-shadow-sm">
-                Your wallet address (already submitted):
-              </p>
-              <input
-                type="text"
-                value={existingWallet}
-                readOnly
-                className="w-full p-2.5 sm:p-3 rounded-lg sm:rounded-xl border-2 border-grateful-primary/30 bg-slate-100 backdrop-blur-md text-slate-800 text-xs sm:text-sm font-mono cursor-not-allowed drop-shadow-sm"
-              />
-              <p className="text-[10px] sm:text-xs text-slate-600">
-                You can only submit one wallet address per Twitter account.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              <input
-                type="text"
-                value={walletAddress}
-                onChange={(e) => setWalletAddress(e.target.value)}
-                placeholder={hasPosts ? "Your Solana wallet address (optional, for rewards)" : "Submit a post first to add your wallet address"}
-                className={`w-full p-2.5 sm:p-3 rounded-lg sm:rounded-xl border-2 border-grateful-primary/30 bg-white/90 backdrop-blur-md focus:outline-none focus:border-grateful-primary transition-all duration-300 text-slate-800 placeholder-slate-500 text-xs sm:text-sm shadow-md hover:shadow-lg drop-shadow-sm ${
-                  !hasPosts ? 'opacity-50 cursor-not-allowed' : ''
-                }`}
-                disabled={isSubmitting || !hasPosts}
-              />
-              {!hasPosts && (
-                <p className="text-[10px] sm:text-xs text-slate-600">
-                  You need to submit at least one post before you can add your wallet address.
-                </p>
-              )}
-            </div>
-          )}
         </div>
       </div>
       

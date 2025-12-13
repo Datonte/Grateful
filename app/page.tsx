@@ -54,12 +54,20 @@ export default function Home() {
                 <img
                   src="/gratefullll.png"
                   alt="Grateful Logo"
-                  className="w-full h-auto max-h-[400px] sm:max-h-[500px] md:max-h-[600px] object-contain"
+                  className="w-full h-auto max-h-[400px] sm:max-h-[500px] md:max-h-[600px] object-contain relative z-0"
                   style={{
                     filter: 'drop-shadow(0 8px 24px rgba(59, 130, 246, 0.3)) drop-shadow(0 4px 12px rgba(255, 215, 0, 0.2))',
                     outline: 'none',
                     border: 'none',
                     boxShadow: 'none',
+                  }}
+                />
+                {/* Center light reduction overlay - only darkens the center */}
+                <div 
+                  className="absolute inset-0 pointer-events-none z-10"
+                  style={{
+                    background: 'radial-gradient(circle at center, rgba(0, 0, 0, 0.1) 0%, rgba(0, 0, 0, 0.05) 30%, transparent 60%)',
+                    mixBlendMode: 'multiply',
                   }}
                 />
               </div>
