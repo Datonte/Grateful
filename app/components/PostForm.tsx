@@ -7,7 +7,7 @@ import { Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MAX_CHARACTERS = 280;
-const PLACEHOLDER_ADDRESS = 'Grateful...ComingSoon...SolanaTrenches';
+const CONTRACT_ADDRESS = '6EmNQ2t1v3LXKM2JAwfT5pkm9gApP3DgJJrY7L2jpump';
 
 export function PostForm() {
   const { data: session } = useSession();
@@ -117,7 +117,7 @@ export function PostForm() {
           <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 shadow-md">
             <p className="text-xs text-slate-700 mb-1 font-medium drop-shadow-sm">Contract Address</p>
             <p className="font-mono text-[10px] sm:text-xs text-slate-800 break-all drop-shadow-sm">
-              {PLACEHOLDER_ADDRESS}
+              {CONTRACT_ADDRESS}
             </p>
           </div>
         </div>

@@ -4,13 +4,13 @@ import { Copy, Check } from 'lucide-react';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 
-const PLACEHOLDER_ADDRESS = 'Grateful...ComingSoon...SolanaTrenches';
+const CONTRACT_ADDRESS = '6EmNQ2t1v3LXKM2JAwfT5pkm9gApP3DgJJrY7L2jpump';
 
 export function ContractAddress() {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(PLACEHOLDER_ADDRESS);
+    navigator.clipboard.writeText(CONTRACT_ADDRESS);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -25,7 +25,7 @@ export function ContractAddress() {
         <div className="flex-1 min-w-0">
           <p className="text-xs sm:text-sm text-slate-700text-slate-300 mb-1 font-medium drop-shadow-sm">Contract Address</p>
           <p className="font-mono text-xs sm:text-sm text-slate-800text-slate-200 truncate drop-shadow-sm">
-            {PLACEHOLDER_ADDRESS}
+            {CONTRACT_ADDRESS}
           </p>
         </div>
         <motion.button
