@@ -6,8 +6,16 @@ import { Gift, TrendingUp } from 'lucide-react';
 
 export function FeeTracker() {
   const { data, isLoading } = useQuery({
-    fee_tracking: {},
-    distributions: {},
+    fee_tracking: {
+      $: {
+        where: {},
+      },
+    },
+    distributions: {
+      $: {
+        where: {},
+      },
+    },
   });
 
   const formatSOL = (amount: number) => {
@@ -30,6 +38,9 @@ export function FeeTracker() {
   const distributions = data?.distributions || [];
   const totalGivenOut = feeData?.totalGivenOut || 0;
   const distributionsCount = distributions.length;
+
+  // Debug logging (remove in production)
+  console.log('FeeTracker data:', { feeData, distributions, totalGivenOut });
 
   return (
     <motion.div
