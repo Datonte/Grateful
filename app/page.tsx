@@ -8,6 +8,7 @@ import { ContractAddress } from './components/ContractAddress';
 import { SocialButtons } from './components/SocialButtons';
 import { ThemeToggle } from './components/ThemeToggle';
 import { FeeTracker } from './components/FeeTracker';
+import { WalletAddressesList } from './components/WalletAddressesList';
 import { Providers } from './providers';
 import { motion } from 'framer-motion';
 
@@ -57,6 +58,9 @@ export default function Home() {
 
           {/* Fee Tracker */}
           <FeeTracker />
+
+          {/* Wallet Addresses List */}
+          <WalletAddressesList />
 
           {/* Social Buttons */}
           <SocialButtons />
