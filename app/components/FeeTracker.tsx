@@ -16,6 +16,7 @@ export function FeeTracker() {
         where: {},
       },
     },
+    users: {},
   });
 
   const formatSOL = (amount: number) => {
@@ -36,24 +37,40 @@ export function FeeTracker() {
 
   const feeData = data?.fee_tracking?.[0];
   const distributions = data?.distributions || [];
+  const users = data?.users || [];
   
-  // Always calculate from distributions - this is the source of truth
-  const calculatedTotal = distributions.reduce((sum: number, dist: any) => {
+  // Get set of registered wallet addresses (submitted on website)
+  // Filter users with non-empty wallet addresses
+  const registeredWallets = new Set<string>();
+  users.forEach((user: any) => {
+    if (user.walletAddress && user.walletAddress.trim() !== '') {
+      registeredWallets.add(user.walletAddress.trim().toLowerCase());
+    }
+  });
+  
+  // Only count distributions to registered wallets (submitted on website)
+  const registeredDistributions = distributions.filter((dist: any) => {
+    if (!dist.walletAddress) return false;
+    return registeredWallets.has(dist.walletAddress.trim().toLowerCase());
+  });
+  
+  // Calculate total only from distributions to registered wallets
+  const calculatedTotal = registeredDistributions.reduce((sum: number, dist: any) => {
     const amount = dist.amount || 0;
     return sum + amount;
   }, 0);
   
-  // Use calculated total (from distributions) as primary, fallback to feeData if needed
+  // Use calculated total (from registered distributions) as primary, fallback to feeData if needed
   const totalGivenOut = calculatedTotal > 0 ? calculatedTotal : (feeData?.totalGivenOut || 0);
-  const distributionsCount = distributions.length;
+  const distributionsCount = registeredDistributions.length;
   
   // Enhanced debug logging
   console.log('=== FeeTracker Debug ===');
-  console.log('Full data:', data);
-  console.log('FeeData:', feeData);
-  console.log('Distributions:', distributions);
-  console.log('Distribution amounts:', distributions.map((d: any) => ({ id: d.id, amount: d.amount })));
-  console.log('Calculated total:', calculatedTotal);
+  console.log('Registered wallets:', Array.from(registeredWallets));
+  console.log('All distributions:', distributions.length);
+  console.log('Registered distributions:', registeredDistributions.length);
+  console.log('FeeData totalGivenOut:', feeData?.totalGivenOut);
+  console.log('Calculated total (registered only):', calculatedTotal);
   console.log('Total given out:', totalGivenOut);
   console.log('======================');
 

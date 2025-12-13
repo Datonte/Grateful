@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     const trackingId = trackingRecord?.id || id(); // Use existing ID or generate new one
     const lastCheckedSig = trackingRecord?.lastCheckedTransaction || null;
 
-    // Get all users with wallet addresses
+    // Get all users with wallet addresses (submitted on the website)
     const users = await db.query({
       users: {
         $: {
@@ -51,10 +51,10 @@ export async function GET(request: NextRequest) {
       }
     });
 
-    console.log(`Monitoring: Found ${walletMap.size} users with wallet addresses`);
+    console.log(`Monitoring: Found ${walletMap.size} users with wallet addresses submitted on website`);
 
-    // Get recent transactions from treasury wallet AND check all registered wallets for incoming transactions
-    // This way we catch transactions sent from any source (Binance, etc.) to registered wallets
+    // ONLY get transactions FROM treasury wallet (outgoing)
+    // We only track transactions FROM treasury TO registered wallets
     const treasuryPubkey = new PublicKey(treasuryWallet);
     
     // Get transactions from treasury wallet (outgoing)
@@ -62,31 +62,8 @@ export async function GET(request: NextRequest) {
       limit: 100,
     });
     
-    // Also get transactions TO all registered wallets (incoming from any source)
-    const allSignatures = new Map<string, any>();
-    treasurySignatures.forEach(sig => {
-      allSignatures.set(sig.signature, sig);
-    });
-    
-    // Get transactions for each registered wallet
-    for (const [walletAddr, user] of walletMap.entries()) {
-      try {
-        const walletPubkey = new PublicKey(walletAddr);
-        const walletSigs = await connection.getSignaturesForAddress(walletPubkey, {
-          limit: 50, // Check recent 50 for each wallet
-        });
-        walletSigs.forEach(sig => {
-          if (!allSignatures.has(sig.signature)) {
-            allSignatures.set(sig.signature, { ...sig, targetWallet: walletAddr });
-          }
-        });
-      } catch (error) {
-        console.error(`Error fetching transactions for wallet ${walletAddr}:`, error);
-      }
-    }
-    
     // Convert to array and sort by blockTime (most recent first)
-    const signatures = Array.from(allSignatures.values()).sort((a, b) => {
+    const signatures = treasurySignatures.sort((a, b) => {
       const timeA = a.blockTime || 0;
       const timeB = b.blockTime || 0;
       return timeB - timeA;
@@ -96,7 +73,7 @@ export async function GET(request: NextRequest) {
     let totalAmount = 0;
     let latestSig = lastCheckedSig;
 
-    // Process each transaction
+    // Process each transaction FROM treasury wallet
     for (const sigInfo of signatures) {
       try {
         const tx = await connection.getTransaction(sigInfo.signature, {
@@ -105,7 +82,7 @@ export async function GET(request: NextRequest) {
 
         if (!tx || !tx.meta) continue;
 
-        // Check if this is an outgoing SOL transfer
+        // Check if this is an outgoing SOL transfer FROM treasury
         const preBalances = tx.meta.preBalances || [];
         const postBalances = tx.meta.postBalances || [];
         
@@ -119,128 +96,88 @@ export async function GET(request: NextRequest) {
           accountKeys = (tx.transaction.message as any).accountKeys || [];
         }
 
-        // Check if this transaction involves the treasury wallet OR any registered wallet
+        // Find treasury wallet index
         const treasuryIndex = accountKeys.findIndex(
           (key) => key.toString() === treasuryWallet
         );
         
-        // Find all registered wallets in this transaction
-        const registeredWalletIndices: number[] = [];
-        walletMap.forEach((user, walletAddr) => {
-          const index = accountKeys.findIndex(
-            (key) => key.toString().toLowerCase() === walletAddr
-          );
-          if (index !== -1) {
-            registeredWalletIndices.push(index);
-          }
-        });
+        if (treasuryIndex === -1) continue; // Skip if treasury not in this transaction
 
-        // Check if treasury sent (outgoing) OR registered wallet received (incoming)
-        let isRelevantTransaction = false;
-        let amountSOL = 0;
+        // Check if treasury sent SOL (outgoing)
+        const treasuryBalanceChange = preBalances[treasuryIndex] - postBalances[treasuryIndex];
+        if (treasuryBalanceChange <= 0) continue; // Treasury didn't send, skip
+
+        // Find which registered wallet (submitted on website) received it
         let recipientAddress = '';
         let recipientIndex = -1;
-        
-        // Case 1: Treasury wallet sent (outgoing from treasury) - ONLY if recipient is registered
-        if (treasuryIndex !== -1) {
-          const treasuryBalanceChange = preBalances[treasuryIndex] - postBalances[treasuryIndex];
-          if (treasuryBalanceChange > 0) {
-            // First, check if ANY recipient is a registered wallet
-            let foundRegisteredRecipient = false;
-            for (let i = 0; i < accountKeys.length; i++) {
-              if (i === treasuryIndex) continue;
-              
-              const accountBalanceChange = postBalances[i] - preBalances[i];
-              
-              // If this account's balance increased, check if it's a registered wallet
-              if (accountBalanceChange > 0) {
-                const checkAddress = accountKeys[i].toString().trim().toLowerCase();
-                const checkUser = walletMap.get(checkAddress);
-                
-                if (checkUser) {
-                  // Found a registered wallet as recipient!
-                  foundRegisteredRecipient = true;
-                  recipientAddress = checkAddress;
-                  recipientIndex = i;
-                  const transactionFee = tx.meta.fee || 0;
-                  amountSOL = (treasuryBalanceChange - transactionFee) / 1_000_000_000;
-                  break;
-                }
-              }
-            }
+        let amountSOL = 0;
+        let targetUser = null;
+
+        for (let i = 0; i < accountKeys.length; i++) {
+          if (i === treasuryIndex) continue;
+          
+          const accountBalanceChange = postBalances[i] - preBalances[i];
+          
+          // If this account's balance increased, check if it's a registered wallet
+          if (accountBalanceChange > 0) {
+            const checkAddress = accountKeys[i].toString().trim().toLowerCase();
+            const checkUser = walletMap.get(checkAddress);
             
-            // ONLY mark as relevant if recipient is registered
-            if (foundRegisteredRecipient) {
-              isRelevantTransaction = true;
-            }
-          }
-        }
-        
-        // Case 2: Registered wallet received (incoming to registered wallet from any source)
-        if (!isRelevantTransaction && registeredWalletIndices.length > 0) {
-          for (const walletIndex of registeredWalletIndices) {
-            const walletBalanceChange = postBalances[walletIndex] - preBalances[walletIndex];
-            if (walletBalanceChange > 0) {
-              isRelevantTransaction = true;
-              amountSOL = walletBalanceChange / 1_000_000_000;
-              recipientAddress = accountKeys[walletIndex].toString().trim().toLowerCase();
-              recipientIndex = walletIndex;
-              break; // Found a recipient, no need to check others
+            if (checkUser) {
+              // Found a wallet address that was submitted on the website!
+              recipientAddress = checkAddress;
+              recipientIndex = i;
+              const transactionFee = tx.meta.fee || 0;
+              amountSOL = (treasuryBalanceChange - transactionFee) / 1_000_000_000;
+              targetUser = checkUser;
+              break; // Found recipient, no need to check others
             }
           }
         }
 
-        if (isRelevantTransaction) {
-          // Find the target user
-          let targetUser = null;
+        // ONLY record if we found a registered wallet recipient (submitted on website)
+        if (targetUser && recipientAddress && amountSOL > 0) {
+          console.log(`Found match! Transaction ${sigInfo.signature} from treasury to ${recipientAddress} (user: ${targetUser.twitterHandle})`);
           
-          if (recipientIndex !== -1 && recipientAddress) {
-            targetUser = walletMap.get(recipientAddress);
-          }
-          
-          // ONLY record if we have a registered user
-          if (targetUser) {
-            console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${targetUser.twitterHandle})`);
-            
-            // Check if this distribution already exists
-            const existingDist = await db.query({
-              distributions: {
-                $: {
-                  where: { transactionHash: sigInfo.signature },
-                },
+          // Check if this distribution already exists
+          const existingDist = await db.query({
+            distributions: {
+              $: {
+                where: { transactionHash: sigInfo.signature },
               },
-            });
+            },
+          });
 
-            if (existingDist?.distributions?.length === 0) {
-              // This is a distribution to a registered user!
-              const distId = id();
-              await db.transact([
-                db.tx.distributions[distId].update({
-                  userId: targetUser.twitterId,
-                  walletAddress: recipientAddress,
-                  amount: amountSOL,
-                  transactionHash: sigInfo.signature,
-                  reason: 'Community reward',
-                  createdAt: sigInfo.blockTime
-                    ? sigInfo.blockTime * 1000
-                    : Date.now(),
-                }),
-              ]);
+          if (existingDist?.distributions?.length === 0) {
+            // This is a distribution to a registered user!
+            const distId = id();
+            await db.transact([
+              db.tx.distributions[distId].update({
+                userId: targetUser.twitterId,
+                walletAddress: recipientAddress,
+                amount: amountSOL,
+                transactionHash: sigInfo.signature,
+                reason: 'Community reward',
+                createdAt: sigInfo.blockTime
+                  ? sigInfo.blockTime * 1000
+                  : Date.now(),
+              }),
+            ]);
 
-              console.log(`Recorded distribution: ${amountSOL} SOL to ${targetUser.twitterHandle}`);
-              newDistributions++;
-              totalAmount += amountSOL;
-            } else {
-              console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
-            }
+            console.log(`Recorded distribution: ${amountSOL} SOL to ${targetUser.twitterHandle} (${recipientAddress})`);
+            newDistributions++;
+            totalAmount += amountSOL;
           } else {
-            // This shouldn't happen if logic is correct, but log for debugging
-            console.log(`Transaction ${sigInfo.signature} marked relevant but no target user found`);
+            console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
           }
 
           if (!latestSig) {
             latestSig = sigInfo.signature;
           }
+        } else if (treasuryBalanceChange > 0) {
+          // Treasury sent to non-registered wallet - don't track, just log for debugging
+          const sentAmount = (treasuryBalanceChange / 1_000_000_000).toFixed(4);
+          console.log(`Transaction ${sigInfo.signature}: Treasury sent ${sentAmount} SOL but recipient is not a registered wallet address`);
         }
       } catch (txError) {
         console.error(`Error processing transaction ${sigInfo.signature}:`, txError);
@@ -248,9 +185,22 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Update total and last checked
-    const currentTotal = trackingRecord?.totalGivenOut || 0;
-    const newTotal = currentTotal + totalAmount;
+    // Recalculate total from all distributions to registered wallets (for accuracy)
+    // This ensures we only count distributions to wallets submitted on the website
+    const allDistributions = await db.query({
+      distributions: {},
+    });
+
+    let recalculatedTotal = 0;
+    const registeredWalletSet = new Set(walletMap.keys());
+    (allDistributions?.distributions || []).forEach((dist: any) => {
+      if (dist.walletAddress && registeredWalletSet.has(dist.walletAddress.trim().toLowerCase())) {
+        recalculatedTotal += dist.amount || 0;
+      }
+    });
+
+    // Use recalculated total (only includes distributions to registered wallets)
+    const newTotal = recalculatedTotal;
 
     const lastSig = latestSig || signatures[0]?.signature || lastCheckedSig;
 
@@ -277,8 +227,8 @@ export async function GET(request: NextRequest) {
       registeredWallets: walletMap.size,
       mostRecentSignature: mostRecentSig,
       lastCheckedBefore: lastCheckedSig,
-      firstFewSignatures: signatureList, // For debugging
-      registeredWalletAddresses: Array.from(walletMap.keys()), // Show what wallets we're looking for
+      firstFewSignatures: signatureList,
+      registeredWalletAddresses: Array.from(walletMap.keys()),
     });
   } catch (error: any) {
     console.error('Error monitoring distributions:', error);
