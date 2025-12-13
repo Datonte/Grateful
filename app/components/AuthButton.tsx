@@ -3,29 +3,31 @@
 import { signIn, signOut, useSession } from 'next-auth/react';
 import { Twitter, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
 export function AuthButton() {
   const { data: session, status } = useSession();
-  const searchParams = useSearchParams();
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
-    const errorParam = searchParams.get('error');
-    if (errorParam) {
-      if (errorParam === 'Configuration' || errorParam === 'AccessDenied') {
-        setError('Twitter authentication failed. Please check your settings and try again.');
-      } else if (errorParam === 'RateLimitExceeded') {
-        setError('Too many requests. Please wait a few minutes and try again.');
-      } else {
-        setError('Authentication error. Please try again.');
+    // Use window.location.search instead of useSearchParams to avoid SSR issues
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const errorParam = params.get('error');
+      if (errorParam) {
+        if (errorParam === 'Configuration' || errorParam === 'AccessDenied') {
+          setError('Twitter authentication failed. Please check your settings and try again.');
+        } else if (errorParam === 'RateLimitExceeded') {
+          setError('Too many requests. Please wait a few minutes and try again.');
+        } else {
+          setError('Authentication error. Please try again.');
+        }
+        // Clear error after 10 seconds
+        const timer = setTimeout(() => setError(null), 10000);
+        return () => clearTimeout(timer);
       }
-      // Clear error after 10 seconds
-      const timer = setTimeout(() => setError(null), 10000);
-      return () => clearTimeout(timer);
     }
-  }, [searchParams]);
+  }, []);
 
   if (status === 'loading') {
     return (
