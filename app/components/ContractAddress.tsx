@@ -30,7 +30,7 @@ export function ContractAddress() {
         </div>
         <motion.button
           onClick={handleCopy}
-          className="p-2 rounded-lg bg-white/90 dark:bg-sky-800/80 hover:bg-white dark:hover:bg-sky-700 transition-colors flex-shrink-0 shadow-sm hover:shadow-md"
+          className="p-2 rounded-lg bg-white/95 dark:bg-slate-800/95 hover:bg-white dark:hover:bg-slate-700 transition-colors flex-shrink-0 shadow-sm hover:shadow-md"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >

@@ -125,7 +125,7 @@ export function PostForm() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What are you grateful for today? 💜"
-            className="w-full p-4 pr-24 rounded-2xl border-2 border-grateful-primary/30 dark:border-grateful-sky-medium/30 bg-white/90 dark:bg-sky-900/80 backdrop-blur-md resize-none focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 shadow-lg hover:shadow-xl"
+            className="w-full p-4 pr-24 rounded-2xl border-2 border-grateful-primary/30 dark:border-grateful-primary/40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md resize-none focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 shadow-lg hover:shadow-xl"
             rows={4}
             maxLength={MAX_CHARACTERS}
             disabled={isSubmitting}
@@ -169,7 +169,7 @@ export function PostForm() {
                 type="text"
                 value={existingWallet}
                 readOnly
-                className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-sky-medium/30 bg-gray-100 dark:bg-sky-800 backdrop-blur-md text-gray-900 dark:text-gray-100 text-sm font-mono cursor-not-allowed"
+                className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-primary/40 bg-gray-100 dark:bg-slate-800 backdrop-blur-md text-gray-900 dark:text-gray-50 text-sm font-mono cursor-not-allowed"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 You can only submit one wallet address per Twitter account.
@@ -182,7 +182,7 @@ export function PostForm() {
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 placeholder={hasPosts ? "Your Solana wallet address (optional, for rewards)" : "Submit a post first to add your wallet address"}
-                className={`w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-sky-medium/30 bg-white/90 dark:bg-sky-900/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm shadow-md hover:shadow-lg ${
+                className={`w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-primary/40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-gray-900 dark:text-gray-50 placeholder-gray-500 dark:placeholder-gray-400 text-sm shadow-md hover:shadow-lg ${
                   !hasPosts ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 disabled={isSubmitting || !hasPosts}

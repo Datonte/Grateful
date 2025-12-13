@@ -20,10 +20,10 @@ export function GratitudeFeed() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="p-6 rounded-2xl bg-white/60 dark:bg-sky-900/60 animate-pulse border border-grateful-primary/10"
+            className="p-6 rounded-2xl bg-white/70 dark:bg-slate-900/80 animate-pulse border border-grateful-primary/10 dark:border-grateful-primary/20"
           >
-            <div className="h-4 bg-gray-300 dark:bg-sky-700 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-300 dark:bg-sky-700 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-300 dark:bg-slate-700 rounded w-3/4 mb-2"></div>
+            <div className="h-4 bg-gray-300 dark:bg-slate-700 rounded w-1/2"></div>
           </div>
         ))}
       </div>

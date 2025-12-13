@@ -61,7 +61,7 @@ export function FeeTracker() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 backdrop-blur-sm mb-8 shadow-lg hover:shadow-xl transition-all duration-300"
+      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 dark:from-grateful-primary/15 dark:to-grateful-accent/15 border border-grateful-primary/20 dark:border-grateful-accent/30 backdrop-blur-sm mb-8 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-900/90"
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded-lg bg-grateful-primary/20">

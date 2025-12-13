@@ -27,9 +27,9 @@ export default function Home() {
                 top: `${Math.random() * 100}%`,
                 width: `${Math.random() * 15 + 8}px`,
                 height: `${Math.random() * 15 + 8}px`,
-                background: `radial-gradient(circle, rgba(255, 215, 0, 0.4), rgba(255, 237, 78, 0.2))`,
+                background: `radial-gradient(circle, rgba(255, 215, 0, 0.6), rgba(255, 237, 78, 0.3))`,
                 animationDelay: `${Math.random() * 15}s`,
-                boxShadow: `0 0 ${Math.random() * 10 + 5}px rgba(255, 215, 0, 0.3)`,
+                boxShadow: `0 0 ${Math.random() * 10 + 8}px rgba(255, 215, 0, 0.5)`,
               }}
             />
           ))}
@@ -42,7 +42,7 @@ export default function Home() {
                 top: `${Math.random() * 100}%`,
                 width: `${Math.random() * 30 + 20}px`,
                 height: `${Math.random() * 20 + 15}px`,
-                background: `radial-gradient(ellipse, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.2))`,
+                background: `radial-gradient(ellipse, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1))`,
                 animationDelay: `${Math.random() * 20}s`,
                 borderRadius: '50%',
               }}
