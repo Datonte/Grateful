@@ -6,15 +6,34 @@ import { PostForm } from './components/PostForm';
 import { GratitudeFeed } from './components/GratitudeFeed';
 import { ContractAddress } from './components/ContractAddress';
 import { SocialButtons } from './components/SocialButtons';
-import { FeeTracker } from './components/FeeTracker';
-import { WalletAddressesList } from './components/WalletAddressesList';
 import { Providers } from './providers';
 import { motion } from 'framer-motion';
 
 export default function Home() {
   return (
     <Providers>
-      <div className="min-h-screen relative">
+      <div className="min-h-screen relative overflow-hidden">
+        {/* Video Background */}
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="fixed top-0 left-0 w-full h-full object-cover z-0"
+          style={{
+            minWidth: '100%',
+            minHeight: '100%',
+            width: 'auto',
+            height: 'auto',
+            filter: 'brightness(1.3) contrast(1.1)',
+          }}
+        >
+          <source src="/vecteezy_cumulus-clouds-moving-fast_1804075.mp4" type="video/mp4" />
+        </video>
+        
+        {/* Overlay for better text readability - lighter overlay */}
+        <div className="fixed top-0 left-0 w-full h-full bg-gradient-to-br from-blue-900/20 via-sky-800/15 to-indigo-900/20 dark:from-slate-900/40 dark:via-blue-950/30 dark:to-indigo-950/40 z-[1]" />
+
         {/* Auth Button - Top Left */}
         <div className="fixed top-3 left-3 sm:top-4 sm:left-4 z-50">
           <AuthButton />
@@ -38,6 +57,9 @@ export default function Home() {
                   className="w-full h-auto max-h-[400px] sm:max-h-[500px] md:max-h-[600px] object-contain"
                   style={{
                     filter: 'drop-shadow(0 8px 24px rgba(59, 130, 246, 0.3)) drop-shadow(0 4px 12px rgba(255, 215, 0, 0.2))',
+                    outline: 'none',
+                    border: 'none',
+                    boxShadow: 'none',
                   }}
                 />
               </div>
@@ -50,9 +72,6 @@ export default function Home() {
           {/* Contract Address */}
           <ContractAddress />
 
-          {/* Fee Tracker */}
-          <FeeTracker />
-
           {/* Social Buttons */}
           <SocialButtons />
 
@@ -64,9 +83,6 @@ export default function Home() {
 
           {/* Feed */}
           <GratitudeFeed />
-
-          {/* Wallet Addresses List - Moved to Bottom */}
-          <WalletAddressesList />
 
           {/* Footer */}
           <motion.footer 

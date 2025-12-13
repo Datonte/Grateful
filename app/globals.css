@@ -24,8 +24,8 @@ body {
 }
 
 body {
-  /* Sky blue gradient background */
-  @apply bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500;
+  /* Transparent background - video will be the background */
+  background: transparent;
   min-height: 100vh;
   position: relative;
   -webkit-user-select: text;
@@ -114,6 +114,16 @@ video {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/* Remove borders and outlines from images */
+img {
+  border: none;
+  outline: none;
+  box-shadow: none;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  display: block;
 }
 
 /* Ensure buttons and interactive elements remain interactive */

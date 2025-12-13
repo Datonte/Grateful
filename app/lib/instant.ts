@@ -16,21 +16,6 @@ export type Schema = {
     createdAt: number;
     reactions: number;
   };
-  distributions: {
-    id: string;
-    userId: string;
-    walletAddress: string;
-    amount: number;
-    transactionHash: string;
-    reason: string;
-    createdAt: number;
-  };
-  fee_tracking: {
-    id: string;
-    totalGivenOut: number;
-    lastDistributionTime: number;
-    lastCheckedTransaction: string;
-  };
 };
 
 const db = init<Schema>({
