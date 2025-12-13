@@ -37,21 +37,25 @@ export function FeeTracker() {
   const feeData = data?.fee_tracking?.[0];
   const distributions = data?.distributions || [];
   
-  // Debug logging - check what's actually in feeData
-  console.log('FeeTracker full data:', data);
-  console.log('FeeTracker feeData:', feeData);
-  console.log('FeeTracker feeData keys:', feeData ? Object.keys(feeData) : 'no feeData');
-  console.log('FeeTracker distributions:', distributions);
+  // Always calculate from distributions - this is the source of truth
+  const calculatedTotal = distributions.reduce((sum: number, dist: any) => {
+    const amount = dist.amount || 0;
+    return sum + amount;
+  }, 0);
   
-  // Try to get totalGivenOut - check multiple possible field names
-  const totalGivenOut = feeData?.totalGivenOut ?? feeData?.total_given_out ?? 0;
+  // Use calculated total (from distributions) as primary, fallback to feeData if needed
+  const totalGivenOut = calculatedTotal > 0 ? calculatedTotal : (feeData?.totalGivenOut || 0);
   const distributionsCount = distributions.length;
   
-  // Calculate from distributions if totalGivenOut is 0
-  const calculatedTotal = distributions.reduce((sum: number, dist: any) => sum + (dist.amount || 0), 0);
-  const displayTotal = totalGivenOut > 0 ? totalGivenOut : calculatedTotal;
-  
-  console.log('FeeTracker totals:', { totalGivenOut, calculatedTotal, displayTotal });
+  // Enhanced debug logging
+  console.log('=== FeeTracker Debug ===');
+  console.log('Full data:', data);
+  console.log('FeeData:', feeData);
+  console.log('Distributions:', distributions);
+  console.log('Distribution amounts:', distributions.map((d: any) => ({ id: d.id, amount: d.amount })));
+  console.log('Calculated total:', calculatedTotal);
+  console.log('Total given out:', totalGivenOut);
+  console.log('======================');
 
   return (
     <motion.div
@@ -72,7 +76,7 @@ export function FeeTracker() {
         <div className="flex items-center justify-between">
           <span className="text-gray-600 dark:text-gray-400">Total Distributed</span>
           <span className="font-bold text-2xl text-grateful-accent">
-            {formatSOL(displayTotal)} SOL
+            {formatSOL(totalGivenOut)} SOL
           </span>
         </div>
 
