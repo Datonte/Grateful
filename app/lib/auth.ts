@@ -19,12 +19,28 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     TwitterProvider({
       clientId: process.env.TWITTER_CLIENT_ID?.trim() || '',
       clientSecret: process.env.TWITTER_CLIENT_SECRET?.trim() || '',
+      authorization: {
+        params: {
+          scope: 'tweet.read users.read offline.access',
+        },
+      },
     }),
   ],
   callbacks: {
     async signIn({ user, account, profile }) {
-      // Allow all sign-ins for now
-      return true;
+      try {
+        // Allow all sign-ins for now
+        return true;
+      } catch (error: any) {
+        // Handle rate limit errors gracefully
+        if (error?.status === 429 || error?.code === 88) {
+          console.error('Twitter API rate limit exceeded. Please try again later.');
+          // Still allow sign-in to proceed, but log the error
+          return true;
+        }
+        console.error('Sign in error:', error);
+        return true; // Allow sign-in to proceed even on errors
+      }
     },
     async session({ session, token }) {
       if (session.user) {
@@ -78,4 +94,22 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   debug: process.env.NODE_ENV === 'development',
   // Add trustHost for Vercel
   trustHost: true,
+  // Add error handling
+  events: {
+    async signIn({ user, account, profile, isNewUser }) {
+      console.log('Sign in event:', { userId: user.id, provider: account?.provider });
+    },
+    async signOut() {
+      console.log('Sign out event');
+    },
+    async createUser({ user }) {
+      console.log('User created:', user.id);
+    },
+    async updateUser({ user }) {
+      console.log('User updated:', user.id);
+    },
+    async linkAccount({ user, account, profile }) {
+      console.log('Account linked:', { userId: user.id, provider: account.provider });
+    },
+  },
 });
