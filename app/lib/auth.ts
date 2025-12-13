@@ -19,11 +19,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     TwitterProvider({
       clientId: process.env.TWITTER_CLIENT_ID?.trim() || '',
       clientSecret: process.env.TWITTER_CLIENT_SECRET?.trim() || '',
-      authorization: {
-        params: {
-          scope: 'tweet.read users.read offline.access',
-        },
-      },
     }),
   ],
   callbacks: {
