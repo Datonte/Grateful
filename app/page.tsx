@@ -15,10 +15,6 @@ export default function Home() {
   return (
     <Providers>
       <div className="min-h-screen relative">
-        {/* Sun for light mode */}
-        <div className="sun-container"></div>
-        
-
         {/* Auth Button - Top Left */}
         <div className="fixed top-3 left-3 sm:top-4 sm:left-4 z-50">
           <AuthButton />
