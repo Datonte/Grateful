@@ -36,11 +36,22 @@ export function FeeTracker() {
 
   const feeData = data?.fee_tracking?.[0];
   const distributions = data?.distributions || [];
-  const totalGivenOut = feeData?.totalGivenOut || 0;
+  
+  // Debug logging - check what's actually in feeData
+  console.log('FeeTracker full data:', data);
+  console.log('FeeTracker feeData:', feeData);
+  console.log('FeeTracker feeData keys:', feeData ? Object.keys(feeData) : 'no feeData');
+  console.log('FeeTracker distributions:', distributions);
+  
+  // Try to get totalGivenOut - check multiple possible field names
+  const totalGivenOut = feeData?.totalGivenOut ?? feeData?.total_given_out ?? 0;
   const distributionsCount = distributions.length;
-
-  // Debug logging (remove in production)
-  console.log('FeeTracker data:', { feeData, distributions, totalGivenOut });
+  
+  // Calculate from distributions if totalGivenOut is 0
+  const calculatedTotal = distributions.reduce((sum: number, dist: any) => sum + (dist.amount || 0), 0);
+  const displayTotal = totalGivenOut > 0 ? totalGivenOut : calculatedTotal;
+  
+  console.log('FeeTracker totals:', { totalGivenOut, calculatedTotal, displayTotal });
 
   return (
     <motion.div
@@ -61,7 +72,7 @@ export function FeeTracker() {
         <div className="flex items-center justify-between">
           <span className="text-gray-600 dark:text-gray-400">Total Distributed</span>
           <span className="font-bold text-2xl text-grateful-accent">
-            {formatSOL(totalGivenOut)} SOL
+            {formatSOL(displayTotal)} SOL
           </span>
         </div>
 
