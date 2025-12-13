@@ -21,7 +21,7 @@ body {
 
 body {
   /* Light mode: Realistic sky blue with sun illumination */
-  @apply bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950;
+  @apply bg-gradient-to-b from-sky-400 via-sky-300 to-sky-500;
   @apply transition-colors duration-500;
   min-height: 100vh;
   position: relative;
@@ -44,44 +44,9 @@ body {
   background-attachment: fixed;
 }
 
-html.dark body {
-  /* Dark mode: Realistic moonlit night sky */
-  background-image: 
-    /* Moon illumination - soft white light spreading from moon (top right) */
-    radial-gradient(circle at 85% 15%, rgba(255, 255, 255, 0.2) 0%, rgba(240, 240, 255, 0.12) 15%, rgba(220, 220, 240, 0.08) 30%, rgba(180, 180, 200, 0.05) 50%, transparent 80%),
-    /* Moon halo - bright area around moon */
-    radial-gradient(ellipse 700px 500px at 85% 15%, rgba(255, 255, 255, 0.15) 0%, rgba(240, 240, 255, 0.1) 20%, rgba(200, 200, 220, 0.06) 40%, transparent 70%),
-    /* Nighttime clouds - moonlit */
-    radial-gradient(circle at 25% 35%, rgba(140, 140, 160, 0.4) 0%, rgba(120, 120, 140, 0.25) 30%, transparent 60%),
-    radial-gradient(circle at 65% 55%, rgba(130, 130, 150, 0.35) 0%, rgba(110, 110, 130, 0.2) 35%, transparent 65%),
-    radial-gradient(circle at 45% 75%, rgba(135, 135, 155, 0.3) 0%, rgba(115, 115, 135, 0.15) 30%, transparent 55%),
-    radial-gradient(circle at 80% 25%, rgba(125, 125, 145, 0.25) 0%, transparent 45%),
-    radial-gradient(circle at 15% 85%, rgba(138, 138, 158, 0.3) 0%, transparent 50%),
-    /* Realistic dark night sky - deep blue/black */
-    linear-gradient(to bottom, 
-      rgba(15, 23, 42, 0.95) 0%, 
-      rgba(20, 25, 45, 0.9) 30%, 
-      rgba(15, 20, 35, 0.85) 60%, 
-      rgba(10, 15, 25, 0.9) 100%
-    ),
-    /* Horizon gradient - slightly lighter near horizon */
-    linear-gradient(to top, rgba(25, 30, 50, 0.5) 0%, transparent 40%),
-    /* Twinkling stars */
-    radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.2) 1px, transparent 2px),
-    radial-gradient(circle at 70% 60%, rgba(255, 255, 255, 0.18) 0.8px, transparent 1.5px),
-    radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.15) 1px, transparent 2px),
-    radial-gradient(circle at 15% 75%, rgba(255, 255, 255, 0.19) 0.9px, transparent 1.8px),
-    radial-gradient(circle at 90% 45%, rgba(255, 255, 255, 0.16) 1px, transparent 2px),
-    radial-gradient(circle at 60% 80%, rgba(255, 255, 255, 0.17) 1px, transparent 2px),
-    radial-gradient(circle at 40% 25%, rgba(255, 255, 255, 0.14) 1px, transparent 2px);
-  background-size: 100% 100%;
-  background-attachment: fixed;
-}
-
 /* Mobile optimization - disable fixed attachment for better performance */
 @media (max-width: 768px) {
-  body,
-  html.dark body {
+  body {
     background-attachment: scroll;
   }
 }
@@ -152,9 +117,6 @@ html.dark body {
   }
 }
 
-html.dark .sun-container {
-  opacity: 0;
-}
 
 @keyframes sun-pulse {
   0%, 100% {
@@ -178,97 +140,39 @@ html.dark .sun-container {
       0 0 280px rgba(255, 237, 180, 0.6),
       0 0 360px rgba(255, 215, 0, 0.4),
       0 0 440px rgba(255, 235, 150, 0.25);
-  }
+}
 }
 
-/* Moon element for dark mode - realistic moon illumination */
-.moon-container {
-  position: fixed;
-  top: 8%;
-  right: 8%;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 30%, 
-    rgba(255, 255, 255, 0.98) 0%,
-    rgba(250, 250, 255, 0.95) 30%,
-    rgba(240, 240, 250, 0.9) 60%,
-    rgba(230, 230, 240, 0.85) 80%,
-    rgba(200, 200, 220, 0.8) 100%
-  );
-  box-shadow: 
-    /* Inner moon surface */
-    inset 0 0 20px rgba(255, 255, 255, 0.5),
-    inset -12px -12px 0 rgba(200, 200, 220, 0.3),
-    /* Outer moon glow - realistic moonlight */
-    0 0 50px rgba(255, 255, 255, 0.5),
-    0 0 100px rgba(240, 240, 255, 0.35),
-    0 0 150px rgba(230, 230, 250, 0.25),
-    0 0 200px rgba(220, 220, 240, 0.15),
-    0 0 250px rgba(200, 200, 220, 0.1);
-  z-index: 1;
-  pointer-events: none;
-  filter: blur(0.3px);
-  opacity: 0;
-  transition: opacity 0.5s ease-in-out;
-}
-
-@media (min-width: 640px) {
-  .moon-container {
-    top: 10%;
-    right: 10%;
-    width: 95px;
-    height: 95px;
-    box-shadow: 
-      inset 0 0 22px rgba(255, 255, 255, 0.5),
-      inset -14px -14px 0 rgba(200, 200, 220, 0.3),
-      0 0 65px rgba(255, 255, 255, 0.5),
-      0 0 125px rgba(240, 240, 255, 0.35),
-      0 0 185px rgba(230, 230, 250, 0.25),
-      0 0 250px rgba(220, 220, 240, 0.15),
-      0 0 315px rgba(200, 200, 220, 0.1);
-  }
-}
-
-@media (min-width: 768px) {
-  .moon-container {
-    width: 120px;
-    height: 120px;
-    box-shadow: 
-      inset 0 0 25px rgba(255, 255, 255, 0.5),
-      inset -15px -15px 0 rgba(200, 200, 220, 0.3),
-      0 0 80px rgba(255, 255, 255, 0.5),
-      0 0 150px rgba(240, 240, 255, 0.35),
-      0 0 220px rgba(230, 230, 250, 0.25),
-      0 0 300px rgba(220, 220, 240, 0.15),
-      0 0 380px rgba(200, 200, 220, 0.1);
-  }
-}
-
-html.dark .moon-container {
-  opacity: 1;
-}
 
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+/* Custom scrollbar - More visible */
 ::-webkit-scrollbar {
-  width: 10px;
+  width: 14px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-transparent;
+  background: rgba(135, 206, 250, 0.2);
+  border-radius: 10px;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-grateful-primary/30 rounded-full;
+  background: rgba(255, 215, 0, 0.6);
+  border-radius: 10px;
+  border: 2px solid rgba(135, 206, 250, 0.3);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-grateful-primary/50;
+  background: rgba(255, 215, 0, 0.8);
+}
+
+/* Firefox scrollbar */
+* {
+  scrollbar-width: auto;
+  scrollbar-color: rgba(255, 215, 0, 0.6) rgba(135, 206, 250, 0.2);
 }
 
 /* Glow effect - softer, more subtle for better visibility in sky theme */
@@ -292,180 +196,8 @@ html {
   }
 }
 
-html.dark .glow-text {
-  animation: glow-pulse-dark 4s ease-in-out infinite;
-}
 
-@keyframes glow-pulse-dark {
-  0%, 100% {
-    text-shadow: 0 0 8px rgba(255, 215, 0, 0.8),
-                 0 0 16px rgba(255, 237, 78, 0.6),
-                 0 2px 4px rgba(0, 0, 0, 0.6);
-  }
-  50% {
-    text-shadow: 0 0 12px rgba(255, 215, 0, 0.9),
-                 0 0 24px rgba(255, 237, 78, 0.7),
-                 0 2px 4px rgba(0, 0, 0, 0.6);
-  }
-}
 
-/* Particle background - enhanced clouds floating in the sky */
-.particles {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-}
-
-.particle {
-  position: absolute;
-  border-radius: 50%;
-  animation: float 20s infinite ease-in-out;
-  opacity: 0.6;
-  filter: blur(1px);
-}
-
-/* Create realistic cloud shapes using multiple overlapping pseudo-elements */
-.cloud-particle::before,
-.cloud-particle::after {
-  content: '';
-  position: absolute;
-  background: white;
-  border-radius: 50%;
-  filter: blur(2px);
-}
-
-/* Large clouds - more fluffy and irregular */
-.cloud-large {
-  border-radius: 50px;
-}
-
-.cloud-large::before {
-  width: 70%;
-  height: 70%;
-  top: -15%;
-  left: 10%;
-  opacity: 0.9;
-}
-
-.cloud-large::after {
-  width: 60%;
-  height: 60%;
-  top: 20%;
-  right: -5%;
-  opacity: 0.85;
-}
-
-/* Medium clouds */
-.cloud-medium {
-  border-radius: 40px;
-}
-
-.cloud-medium::before {
-  width: 65%;
-  height: 65%;
-  top: -12%;
-  left: 15%;
-  opacity: 0.88;
-}
-
-.cloud-medium::after {
-  width: 55%;
-  height: 55%;
-  top: 25%;
-  right: -3%;
-  opacity: 0.8;
-}
-
-/* Small clouds */
-.cloud-small {
-  border-radius: 30px;
-}
-
-.cloud-small::before {
-  width: 60%;
-  height: 60%;
-  top: -10%;
-  left: 20%;
-  opacity: 0.85;
-}
-
-.cloud-small::after {
-  width: 50%;
-  height: 50%;
-  top: 30%;
-  right: -2%;
-  opacity: 0.75;
-}
-
-/* Additional styling for smoother edges */
-.cloud-particle {
-  overflow: visible;
-}
-
-html.dark .particle {
-  opacity: 0.5;
-  filter: blur(1.5px);
-}
-
-html.dark .particle.cloud-particle {
-  opacity: 0.7;
-  filter: blur(2px);
-  /* Faint white/silver glow for dark mode - moonlit clouds */
-  box-shadow: 
-    0 0 20px rgba(255, 255, 255, 0.3),
-    0 0 40px rgba(240, 240, 255, 0.2),
-    0 0 60px rgba(230, 230, 250, 0.15),
-    inset 0 0 25px rgba(255, 255, 255, 0.4),
-    inset 0 0 50px rgba(240, 240, 255, 0.2);
-}
-
-@keyframes float {
-  0%, 100% {
-    transform: translateY(0) translateX(0) rotate(0deg) scale(1);
-  }
-  12.5% {
-    transform: translateY(-20px) translateX(40px) rotate(2deg) scale(1.02);
-  }
-  25% {
-    transform: translateY(-40px) translateX(60px) rotate(5deg) scale(1.05);
-  }
-  37.5% {
-    transform: translateY(-50px) translateX(30px) rotate(3deg) scale(1.03);
-  }
-  50% {
-    transform: translateY(-60px) translateX(0px) rotate(0deg) scale(0.95);
-  }
-  62.5% {
-    transform: translateY(-50px) translateX(-30px) rotate(-3deg) scale(1.03);
-  }
-  75% {
-    transform: translateY(-40px) translateX(-60px) rotate(-5deg) scale(1.05);
-  }
-  87.5% {
-    transform: translateY(-20px) translateX(-40px) rotate(-2deg) scale(1.02);
-  }
-}
-
-/* Additional cloud layers for depth */
-.cloud-layer {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-  opacity: 0.3;
-}
-
-html.dark .cloud-layer {
-  opacity: 0.2;
-}
 
 /* Coin spin animation for extra degen energy */
 @keyframes coin-spin {

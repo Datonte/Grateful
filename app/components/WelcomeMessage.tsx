@@ -18,7 +18,7 @@ export function WelcomeMessage() {
       className="text-center mb-6 sm:mb-8"
     >
       <motion.div
-        className="inline-flex items-center gap-1.5 sm:gap-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-grateful-primary dark:text-grateful-accent mb-2"
+        className="inline-flex items-center gap-1.5 sm:gap-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-grateful-primary mb-2"
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
@@ -36,7 +36,7 @@ export function WelcomeMessage() {
           <Heart className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
         </motion.div>
       </motion.div>
-      <p className="text-slate-700 dark:text-slate-200 text-sm sm:text-base md:text-lg font-medium drop-shadow-sm px-2">
+      <p className="text-slate-700 text-sm sm:text-base md:text-lg font-medium drop-shadow-sm px-2">
         Share what you're grateful for in the Solana trenches
       </p>
     </motion.div>

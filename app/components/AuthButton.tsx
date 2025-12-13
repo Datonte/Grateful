@@ -9,8 +9,8 @@ export function AuthButton() {
 
   if (status === 'loading') {
     return (
-      <div className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md animate-pulse border border-slate-300/50 dark:border-slate-700/70">
-        <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Loading...</span>
+      <div className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white/80 backdrop-blur-md animate-pulse border border-slate-300/50">
+        <span className="text-xs sm:text-sm text-slate-700">Loading...</span>
       </div>
     );
   }

@@ -28,8 +28,8 @@ export function FeeTracker() {
   if (isLoading) {
     return (
       <div className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-secondary/10 border border-grateful-primary/20 animate-pulse mb-8">
-        <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2 mb-2"></div>
-        <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+        <div className="h-4 bg-gray-300bg-gray-600 rounded w-1/2 mb-2"></div>
+        <div className="h-8 bg-gray-300bg-gray-600 rounded w-3/4"></div>
       </div>
     );
   }
@@ -61,20 +61,20 @@ export function FeeTracker() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-50/60 to-sky-50/60 dark:from-blue-950/60 dark:to-indigo-950/60 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-xl mb-6 sm:mb-8 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/95 dark:bg-slate-900/95"
+      className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-50/60 to-sky-50/60from-blue-950/60to-indigo-950/60 border border-blue-200/30border-blue-700/30 backdrop-blur-xl mb-6 sm:mb-8 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/95bg-slate-900/95"
     >
       <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
         <div className="p-1.5 sm:p-2 rounded-lg bg-grateful-primary/20">
           <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-grateful-primary" />
         </div>
-        <h3 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100 drop-shadow-sm">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-800text-slate-100 drop-shadow-sm">
           Community Rewards Given Out
         </h3>
       </div>
 
       <div className="space-y-2 sm:space-y-3">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
-          <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium drop-shadow-sm">Total Distributed</span>
+          <span className="text-xs sm:text-sm text-slate-700text-slate-300 font-medium drop-shadow-sm">Total Distributed</span>
           <motion.span 
             className="font-bold text-xl sm:text-2xl text-grateful-primary"
             animate={{ scale: [1, 1.05, 1] }}
@@ -85,11 +85,11 @@ export function FeeTracker() {
         </div>
 
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 pt-2 border-t border-grateful-primary/20">
-          <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          <span className="text-xs sm:text-sm text-slate-600text-slate-400">
             {distributionsCount} distribution
             {distributionsCount !== 1 ? 's' : ''}
           </span>
-          <div className="flex items-center gap-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-slate-600text-slate-400">
             <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>Auto-tracked</span>
           </div>

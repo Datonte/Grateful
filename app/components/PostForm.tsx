@@ -125,7 +125,7 @@ export function PostForm() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What are you grateful for today? 💜"
-            className="w-full p-3 sm:p-4 pr-16 sm:pr-20 md:pr-24 rounded-xl sm:rounded-2xl border-2 border-blue-300/40 dark:border-blue-500/40 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl resize-none focus:outline-none focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300 text-sm sm:text-base text-slate-800 dark:text-slate-100 placeholder-slate-500 dark:placeholder-slate-400 shadow-xl hover:shadow-2xl"
+            className="w-full p-3 sm:p-4 pr-16 sm:pr-20 md:pr-24 rounded-xl sm:rounded-2xl border-2 border-blue-300/40 bg-white/95 backdrop-blur-xl resize-none focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-400/20 transition-all duration-300 text-sm sm:text-base text-slate-800 placeholder-slate-500 shadow-xl hover:shadow-2xl"
             rows={4}
             maxLength={MAX_CHARACTERS}
             disabled={isSubmitting}
@@ -133,7 +133,7 @@ export function PostForm() {
         <div className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 flex items-center gap-2 sm:gap-3">
           <span
             className={`text-xs sm:text-sm drop-shadow-sm ${
-              remainingChars < 20 ? 'text-red-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'
+              remainingChars < 20 ? 'text-red-600' : 'text-slate-500'
             }`}
           >
             {remainingChars}
@@ -154,24 +154,24 @@ export function PostForm() {
         </div>
         </div>
         <div className="space-y-2">
-          <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 shadow-md">
-            <p className="text-xs text-slate-700 dark:text-slate-300 mb-1 font-medium drop-shadow-sm">Contract Address</p>
-            <p className="font-mono text-[10px] sm:text-xs text-slate-800 dark:text-slate-200 break-all drop-shadow-sm">
+          <div className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-r from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 shadow-md">
+            <p className="text-xs text-slate-700 mb-1 font-medium drop-shadow-sm">Contract Address</p>
+            <p className="font-mono text-[10px] sm:text-xs text-slate-800 break-all drop-shadow-sm">
               {PLACEHOLDER_ADDRESS}
             </p>
           </div>
           {existingWallet ? (
             <div className="space-y-2">
-              <p className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium drop-shadow-sm">
+              <p className="text-xs sm:text-sm text-slate-700 font-medium drop-shadow-sm">
                 Your wallet address (already submitted):
               </p>
               <input
                 type="text"
                 value={existingWallet}
                 readOnly
-                className="w-full p-2.5 sm:p-3 rounded-lg sm:rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-primary/40 bg-slate-100 dark:bg-slate-800 backdrop-blur-md text-slate-800 dark:text-slate-200 text-xs sm:text-sm font-mono cursor-not-allowed drop-shadow-sm"
+                className="w-full p-2.5 sm:p-3 rounded-lg sm:rounded-xl border-2 border-grateful-primary/30 bg-slate-100 backdrop-blur-md text-slate-800 text-xs sm:text-sm font-mono cursor-not-allowed drop-shadow-sm"
               />
-              <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400">
+              <p className="text-[10px] sm:text-xs text-slate-600">
                 You can only submit one wallet address per Twitter account.
               </p>
             </div>
@@ -182,13 +182,13 @@ export function PostForm() {
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 placeholder={hasPosts ? "Your Solana wallet address (optional, for rewards)" : "Submit a post first to add your wallet address"}
-                className={`w-full p-2.5 sm:p-3 rounded-lg sm:rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-primary/40 bg-white/90 dark:bg-slate-900/90 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-slate-800 dark:text-slate-200 placeholder-slate-500 dark:placeholder-slate-400 text-xs sm:text-sm shadow-md hover:shadow-lg drop-shadow-sm ${
+                className={`w-full p-2.5 sm:p-3 rounded-lg sm:rounded-xl border-2 border-grateful-primary/30 bg-white/90 backdrop-blur-md focus:outline-none focus:border-grateful-primary transition-all duration-300 text-slate-800 placeholder-slate-500 text-xs sm:text-sm shadow-md hover:shadow-lg drop-shadow-sm ${
                   !hasPosts ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 disabled={isSubmitting || !hasPosts}
               />
               {!hasPosts && (
-                <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400">
+                <p className="text-[10px] sm:text-xs text-slate-600">
                   You need to submit at least one post before you can add your wallet address.
                 </p>
               )}
@@ -201,7 +201,7 @@ export function PostForm() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-2 p-3 rounded-lg bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400 text-sm"
+          className="mt-2 p-3 rounded-lg bg-red-100 text-red-700 text-sm"
         >
           {error}
         </motion.div>
@@ -211,7 +211,7 @@ export function PostForm() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-2 p-3 rounded-lg bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm"
+          className="mt-2 p-3 rounded-lg bg-green-100 text-green-700 text-sm"
         >
           Post submitted successfully! 💜
         </motion.div>
