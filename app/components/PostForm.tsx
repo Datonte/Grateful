@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useQuery } from '@/app/lib/instant';
 import { Send } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const MAX_CHARACTERS = 280;
+const PLACEHOLDER_ADDRESS = 'Grateful...ComingSoon...SolanaTrenches';
 
 export function PostForm() {
   const { data: session } = useSession();
@@ -14,6 +16,27 @@ export function PostForm() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const userId = session ? (session.user as any).id : null;
+
+  // Check if user already has a wallet address
+  const { data: userData } = useQuery({
+    users: {
+      $: {
+        where: userId ? { twitterId: userId } : {},
+      },
+    },
+  });
+
+  const existingUser = userData?.users?.[0];
+  const existingWallet = existingUser?.walletAddress || '';
+
+  // Set existing wallet if found
+  useEffect(() => {
+    if (existingWallet && !walletAddress) {
+      // Don't set it, just keep it disabled
+    }
+  }, [existingWallet, walletAddress]);
 
   if (!session) return null;
 
@@ -25,7 +48,6 @@ export function PostForm() {
     setError(null);
     setSuccess(false);
     
-    const userId = (session.user as any).id;
     const twitterHandle = (session.user as any).twitterHandle || session.user.name || 'anonymous';
 
     if (!userId) {
@@ -37,6 +59,9 @@ export function PostForm() {
     try {
       console.log('Submitting post with userId:', userId, 'twitterHandle:', twitterHandle);
       
+      // Only send wallet address if user doesn't already have one
+      const walletToSubmit = existingWallet ? '' : walletAddress.trim();
+      
       // Call API route to create post
       const response = await fetch('/api/posts', {
         method: 'POST',
@@ -47,7 +72,7 @@ export function PostForm() {
           userId,
           twitterHandle,
           content: content.trim(),
-          walletAddress: walletAddress.trim(),
+          walletAddress: walletToSubmit,
         }),
       });
       
@@ -58,7 +83,9 @@ export function PostForm() {
       
       console.log('Post submitted successfully');
       setContent('');
-      setWalletAddress('');
+      if (!existingWallet) {
+        setWalletAddress('');
+      }
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (error: any) {
@@ -113,14 +140,39 @@ export function PostForm() {
           </motion.button>
         </div>
         </div>
-        <input
-          type="text"
-          value={walletAddress}
-          onChange={(e) => setWalletAddress(e.target.value)}
-          placeholder="Your Solana wallet address (optional, for rewards)"
-          className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm"
-          disabled={isSubmitting}
-        />
+        <div className="space-y-2">
+          <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 dark:border-purple-400/20">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Contract Address</p>
+            <p className="font-mono text-xs text-gray-900 dark:text-gray-100 break-all">
+              {PLACEHOLDER_ADDRESS}
+            </p>
+          </div>
+          {existingWallet ? (
+            <div className="space-y-2">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Your wallet address (already submitted):
+              </p>
+              <input
+                type="text"
+                value={existingWallet}
+                readOnly
+                className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-gray-100 dark:bg-gray-700 backdrop-blur-md text-gray-900 dark:text-gray-100 text-sm font-mono cursor-not-allowed"
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                You can only submit one wallet address per Twitter account.
+              </p>
+            </div>
+          ) : (
+            <input
+              type="text"
+              value={walletAddress}
+              onChange={(e) => setWalletAddress(e.target.value)}
+              placeholder="Your Solana wallet address (optional, for rewards)"
+              className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm"
+              disabled={isSubmitting}
+            />
+          )}
+        </div>
       </div>
       
       {error && (

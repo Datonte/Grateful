@@ -1,25 +1,33 @@
 'use client';
 
-import { useQuery } from '@/app/lib/instant';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Gift, TrendingUp } from 'lucide-react';
 
 export function FeeTracker() {
-  const { data, isLoading } = useQuery({
-    fee_tracking: {
-      $: {
-        where: {},
-      },
-    },
-    distributions: {
-      $: {
-        where: {},
-      },
-    },
-  });
+  const [data, setData] = useState<{ totalGivenOut: number; distributionsCount: number } | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const feeData = data?.fee_tracking?.[0];
-  const distributions = data?.distributions || [];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/api/fee-tracking');
+        if (response.ok) {
+          const result = await response.json();
+          setData(result);
+        }
+      } catch (error) {
+        console.error('Error fetching fee tracking:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchData();
+    // Refresh every 30 seconds
+    const interval = setInterval(fetchData, 30000);
+    return () => clearInterval(interval);
+  }, []);
 
   const formatSOL = (amount: number) => {
     return new Intl.NumberFormat('en-US', {
@@ -37,7 +45,8 @@ export function FeeTracker() {
     );
   }
 
-  const totalGivenOut = feeData?.totalGivenOut || 0;
+  const totalGivenOut = data?.totalGivenOut || 0;
+  const distributionsCount = data?.distributionsCount || 0;
 
   return (
     <motion.div
@@ -64,8 +73,8 @@ export function FeeTracker() {
 
         <div className="flex items-center justify-between pt-2 border-t border-grateful-primary/20">
           <span className="text-sm text-gray-500 dark:text-gray-400">
-            {distributions.length} distribution
-            {distributions.length !== 1 ? 's' : ''}
+            {distributionsCount} distribution
+            {distributionsCount !== 1 ? 's' : ''}
           </span>
           <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
             <TrendingUp className="w-4 h-4" />

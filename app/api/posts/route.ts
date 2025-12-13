@@ -17,9 +17,35 @@ export async function POST(request: NextRequest) {
       );
     }
     
+    // Check if user already exists
+    const existingUsers = await db.query({
+      users: {
+        $: {
+          where: { twitterId: userId },
+        },
+      },
+    });
+    
+    const existingUser = existingUsers?.users?.[0];
+    const existingWallet = existingUser?.walletAddress || '';
+    const walletToSave = walletAddress?.trim() || '';
+    
+    // Prevent duplicate wallet submissions
+    if (existingWallet && walletToSave) {
+      return NextResponse.json(
+        { error: 'You have already submitted a wallet address. Each Twitter account can only submit one wallet address.' },
+        { status: 400 }
+      );
+    }
+    
+    // If user exists and has wallet, don't update wallet
+    // If user exists but no wallet, allow wallet submission
+    // If user doesn't exist, create new user with wallet (if provided)
+    const finalWalletAddress = existingWallet || walletToSave;
+    
     // Generate IDs for new records
     const postId = id();
-    const userIdForUser = id();
+    const userIdForUser = existingUser?.id || id();
     
     // Create operations using db.tx builder pattern
     const operations = [
@@ -27,8 +53,8 @@ export async function POST(request: NextRequest) {
         twitterId: userId,
         username: twitterHandle,
         twitterHandle: twitterHandle,
-        walletAddress: walletAddress?.trim() || '',
-        createdAt: Date.now(),
+        walletAddress: finalWalletAddress,
+        createdAt: existingUser?.createdAt || Date.now(),
       }),
       db.tx.gratitude_posts[postId].update({
         userId: userId,
