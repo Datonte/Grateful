@@ -44,17 +44,17 @@ export function WalletAddressesList() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 dark:from-grateful-primary/15 dark:to-grateful-accent/15 border border-grateful-primary/20 dark:border-grateful-accent/30 backdrop-blur-sm mb-8 shadow-lg bg-white/80 dark:bg-slate-900/90"
+        className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 dark:from-grateful-primary/15 dark:to-grateful-accent/15 border border-grateful-primary/20 dark:border-grateful-accent/30 backdrop-blur-sm mb-6 sm:mb-8 shadow-lg bg-white/80 dark:bg-slate-900/90"
       >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-grateful-primary/20">
-            <Wallet className="w-5 h-5 text-grateful-primary" />
+        <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+          <div className="p-1.5 sm:p-2 rounded-lg bg-grateful-primary/20">
+            <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-grateful-primary" />
           </div>
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          <h3 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100 drop-shadow-sm">
             Submitted Wallet Addresses
           </h3>
         </div>
-        <p className="text-gray-500 dark:text-gray-400 text-sm">
+        <p className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
           No wallet addresses submitted yet.
         </p>
       </motion.div>
@@ -65,55 +65,55 @@ export function WalletAddressesList() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 dark:from-grateful-primary/15 dark:to-grateful-accent/15 border border-grateful-primary/20 dark:border-grateful-accent/30 backdrop-blur-sm mb-8 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-900/90"
+      className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-50/60 to-sky-50/60 dark:from-blue-950/60 dark:to-indigo-950/60 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-xl mb-6 sm:mb-8 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/95 dark:bg-slate-900/95"
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 rounded-lg bg-grateful-primary/20">
-          <Wallet className="w-5 h-5 text-grateful-primary" />
+      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="p-1.5 sm:p-2 rounded-lg bg-grateful-primary/20">
+          <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-grateful-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100 drop-shadow-sm">
           Submitted Wallet Addresses ({usersWithWallets.length})
         </h3>
       </div>
 
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+      <div className="space-y-2 max-h-64 sm:max-h-96 overflow-y-auto">
         {usersWithWallets.map((user: any, index: number) => (
           <motion.div
             key={user.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="p-3 rounded-xl bg-white/70 dark:bg-slate-800/70 border border-grateful-primary/20 dark:border-grateful-primary/30 flex items-center justify-between gap-3 hover:bg-white/90 dark:hover:bg-slate-700/90 transition-colors shadow-sm hover:shadow-md"
+            className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-white/90 dark:bg-slate-800/90 border border-blue-200/20 dark:border-blue-700/30 flex items-center justify-between gap-2 sm:gap-3 hover:bg-white dark:hover:bg-slate-700 transition-colors shadow-md hover:shadow-lg backdrop-blur-sm"
           >
             <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+              <div className="flex items-center gap-1.5 sm:gap-2 mb-1">
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-400">
                   @{user.twitterHandle || user.username || 'anonymous'}
                 </span>
               </div>
-              <p className="font-mono text-sm text-gray-900 dark:text-gray-100 break-all">
+              <p className="font-mono text-xs sm:text-sm text-slate-800 dark:text-slate-200 break-all drop-shadow-sm">
                 {user.walletAddress}
               </p>
             </div>
             <motion.button
               onClick={() => handleCopy(user.walletAddress, index)}
-              className="p-2 rounded-lg bg-white/95 dark:bg-slate-700/90 hover:bg-white dark:hover:bg-slate-600 transition-colors flex-shrink-0 shadow-sm hover:shadow-md"
+              className="p-1.5 sm:p-2 rounded-lg bg-white/95 dark:bg-slate-700/90 hover:bg-white dark:hover:bg-slate-600 transition-colors flex-shrink-0 shadow-sm hover:shadow-md touch-manipulation"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title="Copy address"
             >
               {copiedIndex === index ? (
-                <Check className="w-4 h-4 text-green-500" />
+                <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-green-500" />
               ) : (
-                <Copy className="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                <Copy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-600 dark:text-slate-400" />
               )}
             </motion.button>
           </motion.div>
         ))}
       </div>
 
-      <div className="mt-4 pt-4 border-t border-grateful-primary/20">
-        <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-grateful-primary/20">
+        <p className="text-[10px] sm:text-xs text-slate-600 dark:text-slate-400 text-center px-2">
           Click the copy icon to copy each wallet address
         </p>
       </div>

@@ -141,17 +141,42 @@ export async function GET(request: NextRequest) {
         let recipientAddress = '';
         let recipientIndex = -1;
         
-        // Case 1: Treasury wallet sent (outgoing from treasury)
+        // Case 1: Treasury wallet sent (outgoing from treasury) - ONLY if recipient is registered
         if (treasuryIndex !== -1) {
           const treasuryBalanceChange = preBalances[treasuryIndex] - postBalances[treasuryIndex];
           if (treasuryBalanceChange > 0) {
-            isRelevantTransaction = true;
-            const transactionFee = tx.meta.fee || 0;
-            amountSOL = (treasuryBalanceChange - transactionFee) / 1_000_000_000;
+            // First, check if ANY recipient is a registered wallet
+            let foundRegisteredRecipient = false;
+            for (let i = 0; i < accountKeys.length; i++) {
+              if (i === treasuryIndex) continue;
+              
+              const accountBalanceChange = postBalances[i] - preBalances[i];
+              
+              // If this account's balance increased, check if it's a registered wallet
+              if (accountBalanceChange > 0) {
+                const checkAddress = accountKeys[i].toString().trim().toLowerCase();
+                const checkUser = walletMap.get(checkAddress);
+                
+                if (checkUser) {
+                  // Found a registered wallet as recipient!
+                  foundRegisteredRecipient = true;
+                  recipientAddress = checkAddress;
+                  recipientIndex = i;
+                  const transactionFee = tx.meta.fee || 0;
+                  amountSOL = (treasuryBalanceChange - transactionFee) / 1_000_000_000;
+                  break;
+                }
+              }
+            }
+            
+            // ONLY mark as relevant if recipient is registered
+            if (foundRegisteredRecipient) {
+              isRelevantTransaction = true;
+            }
           }
         }
         
-        // Case 2: Registered wallet received (incoming to registered wallet)
+        // Case 2: Registered wallet received (incoming to registered wallet from any source)
         if (!isRelevantTransaction && registeredWalletIndices.length > 0) {
           for (const walletIndex of registeredWalletIndices) {
             const walletBalanceChange = postBalances[walletIndex] - preBalances[walletIndex];
@@ -166,35 +191,14 @@ export async function GET(request: NextRequest) {
         }
 
         if (isRelevantTransaction) {
-          // amountSOL is already calculated above (line 150 or 160)
-          // Find recipient - either from treasury outgoing or registered wallet incoming
-          let foundRecipient = false;
+          // Find the target user
           let targetUser = null;
           
           if (recipientIndex !== -1 && recipientAddress) {
-            // We already found the recipient (incoming to registered wallet)
             targetUser = walletMap.get(recipientAddress);
-          } else {
-            // Treasury sent - find which registered wallet received it
-            for (let i = 0; i < accountKeys.length; i++) {
-              if (i === treasuryIndex) continue;
-              
-              const accountBalanceChange = postBalances[i] - preBalances[i];
-              
-              // If this account's balance increased, it's likely the recipient
-              if (accountBalanceChange > 0) {
-                const checkAddress = accountKeys[i].toString().trim().toLowerCase();
-                const checkUser = walletMap.get(checkAddress);
-                
-                if (checkUser) {
-                  recipientAddress = checkAddress;
-                  targetUser = checkUser;
-                  break;
-                }
-              }
-            }
           }
           
+          // ONLY record if we have a registered user
           if (targetUser) {
             console.log(`Found match! Transaction ${sigInfo.signature} to ${recipientAddress} (user: ${targetUser.twitterHandle})`);
             
@@ -226,29 +230,12 @@ export async function GET(request: NextRequest) {
               console.log(`Recorded distribution: ${amountSOL} SOL to ${targetUser.twitterHandle}`);
               newDistributions++;
               totalAmount += amountSOL;
-              foundRecipient = true;
             } else {
               console.log(`Distribution already exists for transaction ${sigInfo.signature}`);
-              foundRecipient = true;
             }
-          }
-          
-          // Debug: log if we found outgoing transaction but no user match
-          if (!foundRecipient && amountSOL > 0.001) {
-            // Get all recipients with balance increases for debugging
-            const recipients = [];
-            for (let i = 0; i < accountKeys.length; i++) {
-              if (i === treasuryIndex) continue;
-              const accountBalanceChange = postBalances[i] - preBalances[i];
-              if (accountBalanceChange > 0) {
-                recipients.push({
-                  address: accountKeys[i].toString().trim().toLowerCase(),
-                  balanceIncrease: accountBalanceChange / 1_000_000_000,
-                });
-              }
-            }
-            console.log(`Outgoing transaction ${sigInfo.signature}: ${amountSOL} SOL, recipients:`, JSON.stringify(recipients));
-            console.log(`Registered wallets:`, Array.from(walletMap.keys()));
+          } else {
+            // This shouldn't happen if logic is correct, but log for debugging
+            console.log(`Transaction ${sigInfo.signature} marked relevant but no target user found`);
           }
 
           if (!latestSig) {

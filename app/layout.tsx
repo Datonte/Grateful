@@ -17,7 +17,13 @@ export const metadata: Metadata = {
   title: 'Grateful - Share What You\'re Grateful For',
   description: 'A memecoin community on Solana where we share gratitude in the trenches',
   icons: {
-    icon: '/favicon.ico',
+    icon: '/logo.jpeg.jpeg',
+    apple: '/logo.jpeg.jpeg',
+  },
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
   },
 };
 
@@ -29,7 +35,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/logo.jpeg.jpeg" />
+        <link rel="apple-touch-icon" href="/logo.jpeg.jpeg" />
       </head>
       <body className={`${inter.variable} ${playfair.variable} font-body antialiased`}>
         <ThemeProvider>

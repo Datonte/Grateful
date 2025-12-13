@@ -9,8 +9,8 @@ export function AuthButton() {
 
   if (status === 'loading') {
     return (
-      <div className="px-6 py-3 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse">
-        <span className="text-sm">Loading...</span>
+      <div className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white/80 dark:bg-slate-800/80 backdrop-blur-md animate-pulse border border-slate-300/50 dark:border-slate-700/70">
+        <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300">Loading...</span>
       </div>
     );
   }
@@ -19,7 +19,7 @@ export function AuthButton() {
     return (
       <motion.button
         onClick={() => signOut()}
-        className="px-6 py-3 rounded-full bg-gradient-to-r from-grateful-primary to-grateful-secondary text-white font-semibold shadow-lg hover:shadow-xl hover:shadow-grateful-primary/50 transition-all duration-300 flex items-center gap-2"
+        className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-grateful-primary to-grateful-secondary text-white text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl hover:shadow-grateful-primary/50 transition-all duration-300 flex items-center gap-2 touch-manipulation"
         whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
         whileTap={{ scale: 0.95 }}
       >
@@ -31,11 +31,11 @@ export function AuthButton() {
   return (
     <motion.button
       onClick={() => signIn('twitter')}
-      className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 flex items-center gap-2"
+      className="px-4 sm:px-6 py-2.5 sm:py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white text-sm sm:text-base font-semibold shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 flex items-center gap-1.5 sm:gap-2 touch-manipulation"
       whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
       whileTap={{ scale: 0.95 }}
     >
-      <Twitter className="w-5 h-5" />
+      <Twitter className="w-4 h-4 sm:w-5 sm:h-5" />
       <span>Connect Twitter</span>
     </motion.button>
   );

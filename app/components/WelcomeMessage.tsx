@@ -15,10 +15,10 @@ export function WelcomeMessage() {
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="text-center mb-8"
+      className="text-center mb-6 sm:mb-8"
     >
       <motion.div
-        className="inline-flex items-center gap-2 text-2xl md:text-3xl font-display font-bold text-grateful-primary dark:text-grateful-accent mb-2"
+        className="inline-flex items-center gap-1.5 sm:gap-2 text-xl sm:text-2xl md:text-3xl font-display font-bold text-grateful-primary dark:text-grateful-accent mb-2"
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
@@ -26,17 +26,17 @@ export function WelcomeMessage() {
           animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity }}
         >
-          <Heart className="w-6 h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
+          <Heart className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
         </motion.div>
-        <span className="glow-text">Welcome @{username}</span>
+        <span className="px-1">Welcome @{username}</span>
         <motion.div
           animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }}
           transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
         >
-          <Heart className="w-6 h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
+          <Heart className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
         </motion.div>
       </motion.div>
-      <p className="text-gray-600 dark:text-gray-300 text-lg">
+      <p className="text-slate-700 dark:text-slate-200 text-sm sm:text-base md:text-lg font-medium drop-shadow-sm px-2">
         Share what you're grateful for in the Solana trenches
       </p>
     </motion.div>

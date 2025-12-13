@@ -61,22 +61,22 @@ export function FeeTracker() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 dark:from-grateful-primary/15 dark:to-grateful-accent/15 border border-grateful-primary/20 dark:border-grateful-accent/30 backdrop-blur-sm mb-8 shadow-lg hover:shadow-xl transition-all duration-300 bg-white/80 dark:bg-slate-900/90"
+      className="p-4 sm:p-5 md:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br from-blue-50/60 to-sky-50/60 dark:from-blue-950/60 dark:to-indigo-950/60 border border-blue-200/30 dark:border-blue-700/30 backdrop-blur-xl mb-6 sm:mb-8 shadow-xl hover:shadow-2xl transition-all duration-300 bg-white/95 dark:bg-slate-900/95"
     >
-      <div className="flex items-center gap-3 mb-4">
-        <div className="p-2 rounded-lg bg-grateful-primary/20">
-          <Gift className="w-5 h-5 text-grateful-primary" />
+      <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+        <div className="p-1.5 sm:p-2 rounded-lg bg-grateful-primary/20">
+          <Gift className="w-4 h-4 sm:w-5 sm:h-5 text-grateful-primary" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+        <h3 className="text-base sm:text-lg font-semibold text-slate-800 dark:text-slate-100 drop-shadow-sm">
           Community Rewards Given Out
         </h3>
       </div>
 
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <span className="text-gray-600 dark:text-gray-400">Total Distributed</span>
+      <div className="space-y-2 sm:space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0">
+          <span className="text-xs sm:text-sm text-slate-700 dark:text-slate-300 font-medium drop-shadow-sm">Total Distributed</span>
           <motion.span 
-            className="font-bold text-2xl text-grateful-primary"
+            className="font-bold text-xl sm:text-2xl text-grateful-primary"
             animate={{ scale: [1, 1.05, 1] }}
             transition={{ duration: 2, repeat: Infinity }}
           >
@@ -84,13 +84,13 @@ export function FeeTracker() {
           </motion.span>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-grateful-primary/20">
-          <span className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-0 pt-2 border-t border-grateful-primary/20">
+          <span className="text-xs sm:text-sm text-slate-600 dark:text-slate-400">
             {distributionsCount} distribution
             {distributionsCount !== 1 ? 's' : ''}
           </span>
-          <div className="flex items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
-            <TrendingUp className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>Auto-tracked</span>
           </div>
         </div>
