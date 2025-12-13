@@ -10,11 +10,23 @@ module.exports = {
     extend: {
       colors: {
         grateful: {
-          primary: '#FF6B9D',
-          secondary: '#C77DFF',
-          accent: '#FFD93D',
-          dark: '#1a0b2e',
-          light: '#fef7ff',
+          primary: '#FFD700',      // Golden yellow (coin/sun)
+          secondary: '#FFA500',    // Orange accent
+          accent: '#FFED4E',       // Bright yellow (light burst)
+          dark: '#1E3A5F',         // Deep blue sky (darker mode)
+          light: '#E6F3FF',        // Light blue sky (lighter mode)
+          sky: {
+            light: '#87CEEB',      // Sky blue (light)
+            medium: '#4A90E2',     // Sky blue (medium)
+            deep: '#1E90FF',       // Deep sky blue
+            darker: '#0066CC',     // Darker blue
+          },
+          cloud: '#FFFFFF',         // White clouds
+          gold: {
+            light: '#FFFACD',      // Light yellow
+            base: '#FFD700',       // Gold
+            dark: '#CD853F',       // Golden brown
+          },
         },
       },
       fontFamily: {
@@ -33,8 +45,8 @@ module.exports = {
           '50%': { transform: 'translateY(-20px)' },
         },
         glow: {
-          '0%': { boxShadow: '0 0 5px rgba(255, 107, 157, 0.5)' },
-          '100%': { boxShadow: '0 0 20px rgba(255, 107, 157, 0.8)' },
+          '0%': { boxShadow: '0 0 5px rgba(255, 215, 0, 0.5)' },
+          '100%': { boxShadow: '0 0 20px rgba(255, 215, 0, 0.8)' },
         },
         slideUp: {
           '0%': { opacity: '0', transform: 'translateY(20px)' },

@@ -19,7 +19,7 @@ export function ContractAddress() {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="mb-8 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 dark:border-purple-400/20"
+      className="mb-8 p-4 rounded-xl bg-gradient-to-r from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 shadow-md hover:shadow-lg transition-all duration-300"
     >
       <div className="flex items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
@@ -30,7 +30,7 @@ export function ContractAddress() {
         </div>
         <motion.button
           onClick={handleCopy}
-          className="p-2 rounded-lg bg-white/80 dark:bg-gray-800/80 hover:bg-white dark:hover:bg-gray-700 transition-colors flex-shrink-0"
+          className="p-2 rounded-lg bg-white/90 dark:bg-sky-800/80 hover:bg-white dark:hover:bg-sky-700 transition-colors flex-shrink-0 shadow-sm hover:shadow-md"
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
         >

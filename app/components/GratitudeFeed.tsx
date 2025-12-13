@@ -20,10 +20,10 @@ export function GratitudeFeed() {
         {[...Array(3)].map((_, i) => (
           <div
             key={i}
-            className="p-6 rounded-2xl bg-gray-200 dark:bg-gray-700 animate-pulse"
+            className="p-6 rounded-2xl bg-white/60 dark:bg-sky-900/60 animate-pulse border border-grateful-primary/10"
           >
-            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4 mb-2"></div>
-            <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-1/2"></div>
+            <div className="h-4 bg-gray-300 dark:bg-sky-700 rounded w-3/4 mb-2"></div>
+            <div className="h-4 bg-gray-300 dark:bg-sky-700 rounded w-1/2"></div>
           </div>
         ))}
       </div>
@@ -59,7 +59,19 @@ export function GratitudeFeed() {
         animate={{ opacity: 1 }}
         className="text-center py-12 text-gray-500 dark:text-gray-400"
       >
-        <p className="text-lg">No posts yet. Be the first to share your gratitude! 💜</p>
+        <motion.p 
+          className="text-lg flex items-center justify-center gap-2"
+          animate={{ scale: [1, 1.05, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          No posts yet. Be the first to share your gratitude! 
+          <motion.span
+            animate={{ rotate: [0, 360] }}
+            transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+          >
+            💜
+          </motion.span>
+        </motion.p>
       </motion.div>
     );
   }

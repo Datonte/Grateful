@@ -81,7 +81,7 @@ export function GratitudePost({ post }: { post: Post }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
-      className="p-6 rounded-2xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border border-gray-200 dark:border-gray-700 shadow-lg hover:shadow-xl transition-all duration-300 mb-4"
+      className="p-6 rounded-2xl bg-white/90 dark:bg-sky-900/80 backdrop-blur-md border border-gray-200 dark:border-sky-700 shadow-lg hover:shadow-xl hover:shadow-grateful-primary/20 transition-all duration-300 mb-4"
     >
       <div className="flex items-start gap-3 mb-4">
         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-grateful-primary to-grateful-secondary flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
@@ -101,7 +101,7 @@ export function GratitudePost({ post }: { post: Post }) {
           </p>
         </div>
       </div>
-      <div className="flex items-center gap-4 pt-3 border-t border-gray-200 dark:border-gray-700">
+      <div className="flex items-center gap-4 pt-3 border-t border-gray-200 dark:border-sky-700">
         <motion.button
           onClick={handleReaction}
           disabled={isUpdating}

@@ -22,9 +22,19 @@ export function WelcomeMessage() {
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 2, repeat: Infinity }}
       >
-        <Heart className="w-6 h-6 md:w-8 md:h-8 fill-current animate-pulse" />
+        <motion.div
+          animate={{ rotate: [0, 10, -10, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity }}
+        >
+          <Heart className="w-6 h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
+        </motion.div>
         <span className="glow-text">Welcome @{username}</span>
-        <Heart className="w-6 h-6 md:w-8 md:h-8 fill-current animate-pulse" />
+        <motion.div
+          animate={{ rotate: [0, -10, 10, 0], scale: [1, 1.1, 1] }}
+          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+        >
+          <Heart className="w-6 h-6 md:w-8 md:h-8 fill-current text-grateful-primary" />
+        </motion.div>
       </motion.div>
       <p className="text-gray-600 dark:text-gray-300 text-lg">
         Share what you're grateful for in the Solana trenches

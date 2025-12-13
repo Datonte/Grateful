@@ -44,7 +44,7 @@ export function WalletAddressesList() {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-secondary/10 border border-grateful-primary/20 backdrop-blur-sm mb-8"
+        className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 backdrop-blur-sm mb-8 shadow-lg"
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="p-2 rounded-lg bg-grateful-primary/20">
@@ -65,7 +65,7 @@ export function WalletAddressesList() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-secondary/10 border border-grateful-primary/20 backdrop-blur-sm mb-8"
+      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 backdrop-blur-sm mb-8 shadow-lg hover:shadow-xl transition-all duration-300"
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded-lg bg-grateful-primary/20">
@@ -83,7 +83,7 @@ export function WalletAddressesList() {
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
-            className="p-3 rounded-xl bg-white/50 dark:bg-gray-800/50 border border-grateful-primary/20 flex items-center justify-between gap-3 hover:bg-white/70 dark:hover:bg-gray-800/70 transition-colors"
+            className="p-3 rounded-xl bg-white/60 dark:bg-sky-800/50 border border-grateful-primary/20 flex items-center justify-between gap-3 hover:bg-white/80 dark:hover:bg-sky-700/70 transition-colors shadow-sm hover:shadow-md"
           >
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 mb-1">
@@ -97,7 +97,7 @@ export function WalletAddressesList() {
             </div>
             <motion.button
               onClick={() => handleCopy(user.walletAddress, index)}
-              className="p-2 rounded-lg bg-white/80 dark:bg-gray-700/80 hover:bg-white dark:hover:bg-gray-600 transition-colors flex-shrink-0"
+              className="p-2 rounded-lg bg-white/90 dark:bg-sky-700/80 hover:bg-white dark:hover:bg-sky-600 transition-colors flex-shrink-0 shadow-sm hover:shadow-md"
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
               title="Copy address"

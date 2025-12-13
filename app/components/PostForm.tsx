@@ -125,7 +125,7 @@ export function PostForm() {
             value={content}
             onChange={(e) => setContent(e.target.value)}
             placeholder="What are you grateful for today? 💜"
-            className="w-full p-4 pr-24 rounded-2xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md resize-none focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400"
+            className="w-full p-4 pr-24 rounded-2xl border-2 border-grateful-primary/30 dark:border-grateful-sky-medium/30 bg-white/90 dark:bg-sky-900/80 backdrop-blur-md resize-none focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 shadow-lg hover:shadow-xl"
             rows={4}
             maxLength={MAX_CHARACTERS}
             disabled={isSubmitting}
@@ -141,8 +141,8 @@ export function PostForm() {
           <motion.button
             type="submit"
             disabled={!content.trim() || isSubmitting || content.length > MAX_CHARACTERS}
-            className="p-2 rounded-full bg-gradient-to-r from-grateful-primary to-grateful-secondary text-white disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg transition-all duration-300"
-            whileHover={{ scale: 1.1 }}
+            className="p-2 rounded-full bg-gradient-to-r from-grateful-primary to-grateful-secondary text-white disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-grateful-primary/50 transition-all duration-300 animate-glow"
+            whileHover={{ scale: 1.1, rotate: [0, -5, 5, 0] }}
             whileTap={{ scale: 0.9 }}
           >
             {isSubmitting ? (
@@ -154,7 +154,7 @@ export function PostForm() {
         </div>
         </div>
         <div className="space-y-2">
-          <div className="p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 dark:border-purple-400/20">
+          <div className="p-3 rounded-xl bg-gradient-to-r from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 shadow-md">
             <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">Contract Address</p>
             <p className="font-mono text-xs text-gray-900 dark:text-gray-100 break-all">
               {PLACEHOLDER_ADDRESS}
@@ -169,7 +169,7 @@ export function PostForm() {
                 type="text"
                 value={existingWallet}
                 readOnly
-                className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-gray-100 dark:bg-gray-700 backdrop-blur-md text-gray-900 dark:text-gray-100 text-sm font-mono cursor-not-allowed"
+                className="w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-sky-medium/30 bg-gray-100 dark:bg-sky-800 backdrop-blur-md text-gray-900 dark:text-gray-100 text-sm font-mono cursor-not-allowed"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 You can only submit one wallet address per Twitter account.
@@ -182,7 +182,7 @@ export function PostForm() {
                 value={walletAddress}
                 onChange={(e) => setWalletAddress(e.target.value)}
                 placeholder={hasPosts ? "Your Solana wallet address (optional, for rewards)" : "Submit a post first to add your wallet address"}
-                className={`w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-secondary/30 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-secondary transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm ${
+                className={`w-full p-3 rounded-xl border-2 border-grateful-primary/30 dark:border-grateful-sky-medium/30 bg-white/90 dark:bg-sky-900/80 backdrop-blur-md focus:outline-none focus:border-grateful-primary dark:focus:border-grateful-accent transition-all duration-300 text-gray-900 dark:text-gray-100 placeholder-gray-400 text-sm shadow-md hover:shadow-lg ${
                   !hasPosts ? 'opacity-50 cursor-not-allowed' : ''
                 }`}
                 disabled={isSubmitting || !hasPosts}

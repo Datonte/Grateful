@@ -19,8 +19,8 @@ export function AuthButton() {
     return (
       <motion.button
         onClick={() => signOut()}
-        className="px-6 py-3 rounded-full bg-gradient-to-r from-red-500 to-pink-500 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-        whileHover={{ scale: 1.05 }}
+        className="px-6 py-3 rounded-full bg-gradient-to-r from-grateful-primary to-grateful-secondary text-white font-semibold shadow-lg hover:shadow-xl hover:shadow-grateful-primary/50 transition-all duration-300 flex items-center gap-2"
+        whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
         whileTap={{ scale: 0.95 }}
       >
         <span>Logout</span>
@@ -31,8 +31,8 @@ export function AuthButton() {
   return (
     <motion.button
       onClick={() => signIn('twitter')}
-      className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 flex items-center gap-2"
-      whileHover={{ scale: 1.05 }}
+      className="px-6 py-3 rounded-full bg-gradient-to-r from-blue-400 to-blue-600 text-white font-semibold shadow-lg hover:shadow-xl hover:shadow-blue-500/50 transition-all duration-300 flex items-center gap-2"
+      whileHover={{ scale: 1.05, rotate: [0, -2, 2, 0] }}
       whileTap={{ scale: 0.95 }}
     >
       <Twitter className="w-5 h-5" />

@@ -61,7 +61,7 @@ export function FeeTracker() {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-secondary/10 border border-grateful-primary/20 backdrop-blur-sm mb-8"
+      className="p-6 rounded-2xl bg-gradient-to-br from-grateful-primary/10 to-grateful-accent/10 border border-grateful-primary/20 dark:border-grateful-accent/20 backdrop-blur-sm mb-8 shadow-lg hover:shadow-xl transition-all duration-300"
     >
       <div className="flex items-center gap-3 mb-4">
         <div className="p-2 rounded-lg bg-grateful-primary/20">
@@ -75,9 +75,13 @@ export function FeeTracker() {
       <div className="space-y-3">
         <div className="flex items-center justify-between">
           <span className="text-gray-600 dark:text-gray-400">Total Distributed</span>
-          <span className="font-bold text-2xl text-grateful-accent">
+          <motion.span 
+            className="font-bold text-2xl text-grateful-primary"
+            animate={{ scale: [1, 1.05, 1] }}
+            transition={{ duration: 2, repeat: Infinity }}
+          >
             {formatSOL(totalGivenOut)} SOL
-          </span>
+          </motion.span>
         </div>
 
         <div className="flex items-center justify-between pt-2 border-t border-grateful-primary/20">
